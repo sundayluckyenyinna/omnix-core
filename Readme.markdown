@@ -39,8 +39,9 @@ The major features of the omnix-core library includes:
 
 7.  **Configurable Method fallback mechanism**
 
-
-1. **Logging**
+<br />
+<hr/>
+1. **Logging Configuration**
 
 Immediately the starter library is added to your project, default
 configurations are applied for logging every request and response of
