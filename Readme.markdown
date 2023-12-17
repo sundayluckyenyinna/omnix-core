@@ -81,7 +81,7 @@ In the case of development, there might be several configurations you
 might want to apply. You might even want to turn the feature of
 encryption off totally while testing and developing your API. The
 following are the configurations that can be applied to control the
-beaviour of the encryption feature:
+behaviour of the encryption feature:
 
 property: omnix.encryption.enable-encryption = true/false (turn on/turn
 off encryption) property: omnix.encryption.algorith = AES (choose the
@@ -125,7 +125,6 @@ d.  EncryptionPolicy.RELAX_ALL (specifies that the encryption should be
     relaxed totally for both the request and response)
 
 ```{=html}
-<!-- -->
 ```
 3.  Global request/response/exception response format For the sake of
     uniformity across all microservices, the request/response and
@@ -134,18 +133,16 @@ d.  EncryptionPolicy.RELAX_ALL (specifies that the encryption should be
     classes for this case:
 
 ```{=html}
-<!-- -->
 ```
 a.  ApiBaseResponse: This class is a pojo with the following JSON
     definition
 
 ```{=html}
-<!-- -->
 ```
     {
        "responseCode": "07",
-           "responseMessage": "Failed model",
-           "errors": []
+       "responseMessage": "Failed model",
+       "errors": []
     }
 
     The above can be used to respond to the client without a response data.
@@ -158,9 +155,9 @@ b.  OmnixApiResponse: This class is a pojo with the following JSON
 ```
     {
        "responseCode": "07",
-           "responseMessage": "Failed model",
+       "responseMessage": "Failed model",
        "responseData": {},
-           "errors": []
+       "errors": []
     }
 
     The above can be used to respond to the client with a response data.
@@ -175,7 +172,6 @@ c.  OmnixApiException: This class follows the fluent design pattern. It
     for funds-transfer:
 
 ```{=html}
-<!-- -->
 ```
      if(accountBalance < amountToDebit){
         throw OmnixApiException.newInstance()
@@ -193,8 +189,8 @@ c.  OmnixApiException: This class follows the fluent design pattern. It
     400 (BAD REQUEST)
     {
        "responseCode": "05",
-           "responseMessage": "Insufficient balance",
-           "errors": ["Sorry we cannot process your request at this time. You have insufficient balance to proceed"]
+       "responseMessage": "Insufficient balance",
+       "errors": ["Sorry we cannot process your request at this time. You have insufficient balance to proceed"]
     }
 
 4.  Exception Advice The starter library handles three kinds of
@@ -202,7 +198,6 @@ c.  OmnixApiException: This class follows the fluent design pattern. It
     server response. These classes of exception includes:
 
 ```{=html}
-<!-- -->
 ```
 a.  MethodArguementNotValidException: The starter library handles the
     generic and default spring-boot ugly exception logs when a wrong
@@ -211,13 +206,12 @@ a.  MethodArguementNotValidException: The starter library handles the
     something below:
 
 ```{=html}
-<!-- -->
 ```
     {
        "responseCode": "07",
-           "responseMessage": "Failed model",
-           "errors": ["Failed model"],
-           "responseData": null
+       "responseMessage": "Failed model",
+       "errors": ["Failed model"],
+       "responseData": null
     }
 
 b.  ConstraintViolationException: The starter library handles the
@@ -230,13 +224,12 @@ b.  ConstraintViolationException: The starter library handles the
     something below:
 
 ```{=html}
-<!-- -->
 ```
     {
        "responseCode": "07",
-           "responseMessage": "mobileNumber cannot be null",
-           "errors": ["mobileNumber cannot be null"],
-           "responseData": null
+       "responseMessage": "mobileNumber cannot be null",
+       "errors": ["mobileNumber cannot be null"],
+       "responseData": null
     }
 
 c.  MissingServletParameterException: The starter library handles the
