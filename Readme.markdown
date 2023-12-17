@@ -41,6 +41,7 @@ The major features of the omnix-core library includes:
 
 <br />
 <hr/>
+
 1. **Logging Configuration**
 
 Immediately the starter library is added to your project, default
@@ -65,7 +66,9 @@ b.  pretty_print: This logs request/response such that the Request Body
 If there is a mistake in your statement of the supported logging style
 above, the default configuration is applied.
 
-2.  Encryption Configuration Within the Omnix security policy includes
+2.  **Encryption Configuration**
+
+    Within the Omnix security policy includes
     the necessity of API contract encryption. All requests and responses
     must be encrypted end-to-end to prevent the man in the middle
     attack. This process of applying decryption for every request in
@@ -128,7 +131,9 @@ d.  EncryptionPolicy.RELAX_ALL (specifies that the encryption should be
 
 ```{=html}
 ```
-3.  Global request/response/exception response format For the sake of
+3.  **Global request/response/exception response format** 
+
+    For the sake of
     uniformity across all microservices, the request/response and
     exception format between clients and server must be the same. This
     uniformity is ensured by the starter library that defines several
@@ -153,7 +158,6 @@ b.  OmnixApiResponse: This class is a pojo with the following JSON
     definition
 
 ```{=html}
-<!-- -->
 ```
     {
        "responseCode": "07",
