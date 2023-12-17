@@ -39,7 +39,8 @@ The major features of the omnix-core library includes:
 
 7.  **Configurable Method fallback mechanism**
 
-8.  **Logging**
+
+1. **Logging**
 
 Immediately the starter library is added to your project, default
 configurations are applied for logging every request and response of
@@ -186,6 +187,8 @@ c.  OmnixApiException: This class follows the fluent design pattern. It
 
     The Exception advice that comes with the starter library will then format the response to the client as below:
 
+```{=json}
+```
     400 (BAD REQUEST)
     {
        "responseCode": "05",
