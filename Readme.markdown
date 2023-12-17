@@ -89,8 +89,11 @@ following are the configurations that can be applied to control the
 behaviour of the encryption feature:
 
 property: omnix.encryption.enable-encryption = true/false (turn on/turn
-off encryption) property: omnix.encryption.algorith = AES (choose the
+off encryption) 
+
+property: omnix.encryption.algorith = AES (choose the
 encryption algorithm to use. Current Supported algorithm is AES)
+
 property: omnix.encryption.aes-encryption-key = xxxxxxx (specifies the
 encryption key for the encryption algorithm)
 
@@ -99,9 +102,13 @@ feature. For example, the following cases might come up during your
 development and release of your API design.
 
 Case 1: Only the request from the client should be encrypted while the
-response should not necessarily be encrypted. Case 2: Only the response
+response should not necessarily be encrypted. 
+
+Case 2: Only the response
 from the API should be encrypted from the API while the client request
-does not need to be necessarily encrypted. Case 3: A specific API
+does not need to be necessarily encrypted. 
+
+Case 3: A specific API
 request and response should not necessarily be encrypted but all other
 API resource should follow the strict encryption policy.
 
@@ -110,8 +117,8 @@ for specific endpoints/API resource. Thus, annotations on each endpoint
 is the best way to seprate this concern that is not cross-cutting. The
 following annotations addresses the above special cases:
 
-A. @EncryptionPolicyAdvice (value =
-EncryptionPolicy.REQUEST_AND_RESPONSE)
+A. <span style="color: green">@EncryptionPolicyAdvice (value =
+EncryptionPolicy.REQUEST_AND_RESPONSE) </span>
 
 The above annotation applied on a controller advices the controller on
 the encryption policy of annotation to use for the API resource
