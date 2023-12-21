@@ -1,259 +1,191 @@
-                                  OMNIX - CORE
+# Dillinger
+## _The Last Markdown Editor, Ever_
 
-Design necessity and philosophy: **Anything that can be repeated, must be
-abstracted!**
+[![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
 
-The omnix-core is a core library of the Omnix Middleware that must be
-incorporated into any simple Omnix micro-service. The library is an
-opinionated library that automates alot of manual tasks corresponding to
-cross-cutting concerns across all microservices.
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-Omnix-core design pattern follows the philosophy of the spring-boot
-paradigm which favours convention over configuration. This implies that
-the features and behaviour of the starter library is highly configurable
-at runtime. This configurations can be applied either by settings made
-in the application.yml/application.properties file or via annotations
-exposed by the starter library.
+Dillinger is a cloud-enabled, mobile-ready, offline-storage compatible,
+AngularJS-powered HTML5 Markdown editor.
 
-Furthermore, as it claims to be a starter library, once added to a
-project as a dependency, there is no further need for a manual
-configuration to include it in your project. Simply adding it to your
-project as a dependency declared in your maven build tool, it
-automatically registers in the spring-boot application context and all
-of its component beans are registered in the Dependency Injection
-container of the spring-boot factory!
+- Type some Markdown on the left
+- See HTML in the right
+- ✨Magic ✨
 
-The major features of the omnix-core library includes:
+## Features
 
-1.  **Logging configuration.**
+- Import a HTML file and watch it magically convert to Markdown
+- Drag and drop images (requires your Dropbox account be linked)
+- Import and save files from GitHub, Dropbox, Google Drive and One Drive
+- Drag and drop markdown and HTML files into Dillinger
+- Export documents as Markdown, HTML and PDF
 
-2.  **Encryption configuration.**
+Markdown is a lightweight markup language based on the formatting conventions
+that people naturally use in email.
+As [John Gruber] writes on the [Markdown site][df1]
 
-3.  **Global request/response/exception response format**
+> The overriding design goal for Markdown's
+> formatting syntax is to make it as readable
+> as possible. The idea is that a
+> Markdown-formatted document should be
+> publishable as-is, as plain text, without
+> looking like it's been marked up with tags
+> or formatting instructions.
 
-4.  **Exception advice**
+This text you see here is *actually- written in Markdown! To get a feel
+for Markdown's syntax, type some text into the left window and
+watch the results in the right.
 
-5.  **Instrumentation**
+## Tech
 
-6.  **Synchronized parameterization/configuration**
+Dillinger uses a number of open source projects to work properly:
 
-7.  **Configurable Method fallback mechanism**
+- [AngularJS] - HTML enhanced for web apps!
+- [Ace Editor] - awesome web-based text editor
+- [markdown-it] - Markdown parser done right. Fast and easy to extend.
+- [Twitter Bootstrap] - great UI boilerplate for modern web apps
+- [node.js] - evented I/O for the backend
+- [Express] - fast node.js network app framework [@tjholowaychuk]
+- [Gulp] - the streaming build system
+- [Breakdance](https://breakdance.github.io/breakdance/) - HTML
+  to Markdown converter
+- [jQuery] - duh
 
-<br />
-<hr/>
+And of course Dillinger itself is open source with a [public repository][dill]
+on GitHub.
 
-1. **Logging Configuration**
+## Installation
 
-Immediately the starter library is added to your project, default
-configurations are applied for logging every request and response of
-your exposed APIs. This is done so that you do not have to perform the
-mundane operation of request/response logs and make you just focus on
-the business logic of your API.
+Dillinger requires [Node.js](https://nodejs.org/) v10+ to run.
 
-The style of the request/response logs can be configured in the
-application.yml/application/properties file on choice in the following
-way:
+Install the dependencies and devDependencies and start the server.
 
-Property: logger.config.style
-
-Possible values for the above configuration includes:
-
-a.  default: This logs request/response using the system default style
-    of logging.
-b.  pretty_print: This logs request/response such that the Request Body
-    Json and the Response Body Json are logged in a pretty format.
-
-If there is a mistake in your statement of the supported logging style
-above, the default configuration is applied.
-
-2.  **Encryption Configuration**
-
-    Within the Omnix security policy includes
-    the necessity of API contract encryption. All requests and responses
-    must be encrypted end-to-end to prevent the man in the middle
-    attack. This process of applying decryption for every request in
-    EVERY controller classes and then applying decryption in same EVERY
-    controller is mundane. Following the philosophy of this starter,
-    encryption is abstracted in this library. The good news is that the
-    developer does not have to do any extra configuration to use it.
-    Upon addition of this starter to your project, every request will
-    automatically be decrypted BEFORE hitting your controller and every
-    response will automatically be encrypted AFTER leaving your
-    controller but before reaching the client requesting for your
-    specific API resource.
-
-In the case of development, there might be several configurations you
-might want to apply. You might even want to turn the feature of
-encryption off totally while testing and developing your API. The
-following are the configurations that can be applied to control the
-behaviour of the encryption feature:
-
-property: omnix.encryption.enable-encryption = true/false (turn on/turn
-off encryption) 
-
-property: omnix.encryption.algorith = AES (choose the
-encryption algorithm to use. Current Supported algorithm is AES)
-
-property: omnix.encryption.aes-encryption-key = xxxxxxx (specifies the
-encryption key for the encryption algorithm)
-
-The above configurations might not be enough to work with the encryption
-feature. For example, the following cases might come up during your
-development and release of your API design.
-
-Case 1: Only the request from the client should be encrypted while the
-response should not necessarily be encrypted. 
-
-Case 2: Only the response
-from the API should be encrypted from the API while the client request
-does not need to be necessarily encrypted. 
-
-Case 3: A specific API
-request and response should not necessarily be encrypted but all other
-API resource should follow the strict encryption policy.
-
-For the above cases, it is clear that the configurations is primarily
-for specific endpoints/API resource. Thus, annotations on each endpoint
-is the best way to seprate this concern that is not cross-cutting. The
-following annotations addresses the above special cases:
-
-A. <span style="color: green">@EncryptionPolicyAdvice (value =
-EncryptionPolicy.REQUEST_AND_RESPONSE) </span>
-
-The above annotation applied on a controller advices the controller on
-the encryption policy of annotation to use for the API resource
-associated to it. The annotation has an 'EncryptionPolicy' key that
-specifies the exact policy for the advice. The key must have values in
-the 'com.accionmfb.omnix.core.commons' package. The values and their
-effect of the Encryption Policy enums include:
-
-a.  EncryptionPolicy.REQUEST (specifies that ONLY client request be
-    encrypted and that the controller should decrypt it before use).
-b.  EncryptionPolicy.RESPONSE (specifies that ONLY server response be
-    encrypted).
-c.  EncryptionPolicy.REQUEST_AND_RESPONSE (specifies that both the
-    request and response be encrypted/decrypted)
-d.  EncryptionPolicy.RELAX_ALL (specifies that the encryption should be
-    relaxed totally for both the request and response)
-
-```{=html}
+```sh
+cd dillinger
+npm i
+node app
 ```
-3.  **Global request/response/exception response format** 
 
-    For the sake of
-    uniformity across all microservices, the request/response and
-    exception format between clients and server must be the same. This
-    uniformity is ensured by the starter library that defines several
-    classes for this case:
+For production environments...
 
-```{=html}
+```sh
+npm install --production
+NODE_ENV=production node app
 ```
-a.  ApiBaseResponse: This class is a pojo with the following JSON
-    definition
 
-```{=html}
+## Plugins
+
+Dillinger is currently extended with the following plugins.
+Instructions on how to use them in your own application are linked below.
+
+| Plugin | README |
+| ------ | ------ |
+| Dropbox | [plugins/dropbox/README.md][PlDb] |
+| GitHub | [plugins/github/README.md][PlGh] |
+| Google Drive | [plugins/googledrive/README.md][PlGd] |
+| OneDrive | [plugins/onedrive/README.md][PlOd] |
+| Medium | [plugins/medium/README.md][PlMe] |
+| Google Analytics | [plugins/googleanalytics/README.md][PlGa] |
+
+## Development
+
+Want to contribute? Great!
+
+Dillinger uses Gulp + Webpack for fast developing.
+Make a change in your file and instantaneously see your updates!
+
+Open your favorite Terminal and run these commands.
+
+First Tab:
+
+```sh
+node app
 ```
-    {
-       "responseCode": "07",
-       "responseMessage": "Failed model",
-       "errors": []
-    }
+Second Tab:
 
-    The above can be used to respond to the client without a response data.
-
-b.  OmnixApiResponse: This class is a pojo with the following JSON
-    definition
-
-```{=html}
+```sh
+gulp watch
 ```
-    {
-       "responseCode": "07",
-       "responseMessage": "Failed model",
-       "responseData": {},
-       "errors": []
-    }
 
-    The above can be used to respond to the client with a response data.
+(optional) Third:
 
-c.  OmnixApiException: This class follows the fluent design pattern. It
-    is the standard exception that should be thrown against validation
-    in the service or controller class. The OmnixAPiException thrown
-    from anywhere in your project will be properly formatted by the
-    library before reaching the client. The following shows a sample of
-    how to construct and through the exception to the client, when there
-    is, for example, an insufficient balance on the customer's account
-    for funds-transfer:
-
-```{=html}
+```sh
+karma test
 ```
-     if(accountBalance < amountToDebit){
-        throw OmnixApiException.newInstance()
-            .withCode(ResponseCodes.INSUFFICIENT_BALANCE.getResponseCode())
-            .withMessage("Insufficient balance")
-            .withError("Sorry we cannot process your request at this time. You have insufficient balance to proceed")
-            .withStatusCode(400);   // Bad Request
-     }
 
-    The above is a very fluent design style for the OmnixApiException so that exception object can be built in the same time and line that they are
-        thrown.
+#### Building for source
 
-    The Exception advice that comes with the starter library will then format the response to the client as below:
+For production release:
 
-```{=json}
+```sh
+gulp build --prod
 ```
-    400 (BAD REQUEST)
-    {
-       "responseCode": "05",
-       "responseMessage": "Insufficient balance",
-       "errors": ["Sorry we cannot process your request at this time. You have insufficient balance to proceed"]
-    }
 
-4.  Exception Advice The starter library handles three kinds of
-    exceptions that might be thrown between the client request and the
-    server response. These classes of exception includes:
+Generating pre-built zip archives for distribution:
 
-```{=html}
+```sh
+gulp build dist --prod
 ```
-a.  MethodArguementNotValidException: The starter library handles the
-    generic and default spring-boot ugly exception logs when a wrong
-    method arguement is passed. The format that will be appreciated by
-    the client response model. The reformatted form will now be of
-    something below:
 
-```{=html}
+## Docker
+
+Dillinger is very easy to install and deploy in a Docker container.
+
+By default, the Docker will expose port 8080, so change this within the
+Dockerfile if necessary. When ready, simply use the Dockerfile to
+build the image.
+
+```sh
+cd dillinger
+docker build -t <youruser>/dillinger:${package.json.version} .
 ```
-    {
-       "responseCode": "07",
-       "responseMessage": "Failed model",
-       "errors": ["Failed model"],
-       "responseData": null
-    }
 
-b.  ConstraintViolationException: The starter library handles the
-    generic and default spring-boot ugly exception logs to a format that
-    will be appreciated by the client response model. The
-    ConstraintViolationException is invoked when there is violation of
-    the request model or contract that ws meant to be satisfied by the
-    client. For example, when a null value is passed for a non-nullable
-    field in the request model. The reformatted form will now be of
-    something below:
+This will create the dillinger image and pull in the necessary dependencies.
+Be sure to swap out `${package.json.version}` with the actual
+version of Dillinger.
 
-```{=html}
+Once done, run the Docker image and map the port to whatever you wish on
+your host. In this example, we simply map port 8000 of the host to
+port 8080 of the Docker (or whatever port was exposed in the Dockerfile):
+
+```sh
+docker run -d -p 8000:8080 --restart=always --cap-add=SYS_ADMIN --name=dillinger <youruser>/dillinger:${package.json.version}
 ```
-    {
-       "responseCode": "07",
-       "responseMessage": "mobileNumber cannot be null",
-       "errors": ["mobileNumber cannot be null"],
-       "responseData": null
-    }
 
-c.  MissingServletParameterException: The starter library handles the
-    generic and default spring-boot ugly exception logs. The exception
-    is invoked when there is a missing request parameter or passed
-    variable in the API resource request from the client.
+> Note: `--capt-add=SYS-ADMIN` is required for PDF rendering.
 
-d.  ResponseStatusException: The starter library handles properly the
-    exception that is thrown when there is a status exception.
+Verify the deployment by navigating to your server address in
+your preferred browser.
 
-e.  OmnixApiException: The standard exception format for omnix is
-    handled by the starter library.
+```sh
+127.0.0.1:8000
+```
+
+## License
+
+MIT
+
+**Free Software, Hell Yeah!**
+
+[//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
+
+[dill]: <https://github.com/joemccann/dillinger>
+[git-repo-url]: <https://github.com/joemccann/dillinger.git>
+[john gruber]: <http://daringfireball.net>
+[df1]: <http://daringfireball.net/projects/markdown/>
+[markdown-it]: <https://github.com/markdown-it/markdown-it>
+[Ace Editor]: <http://ace.ajax.org>
+[node.js]: <http://nodejs.org>
+[Twitter Bootstrap]: <http://twitter.github.com/bootstrap/>
+[jQuery]: <http://jquery.com>
+[@tjholowaychuk]: <http://twitter.com/tjholowaychuk>
+[express]: <http://expressjs.com>
+[AngularJS]: <http://angularjs.org>
+[Gulp]: <http://gulpjs.com>
+
+[PlDb]: <https://github.com/joemccann/dillinger/tree/master/plugins/dropbox/README.md>
+[PlGh]: <https://github.com/joemccann/dillinger/tree/master/plugins/github/README.md>
+[PlGd]: <https://github.com/joemccann/dillinger/tree/master/plugins/googledrive/README.md>
+[PlOd]: <https://github.com/joemccann/dillinger/tree/master/plugins/onedrive/README.md>
+[PlMe]: <https://github.com/joemccann/dillinger/tree/master/plugins/medium/README.md>
+[PlGa]: <https://github.com/RahulHP/dillinger/blob/master/plugins/googleanalytics/README.md>
