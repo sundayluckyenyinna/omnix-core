@@ -93,7 +93,7 @@ Definition of the response and exception format should be uniform to ensure the 
     }
 ```
 - **OmnixApiResponse**
-  This class extends the ApiBaseResponse and add the attribute to hold the response data. Thus, in the case a typical **OmnixResponse** server payload will include the **responseCode**, **responseMessage**, **errors** and the **responseData* from the server. The JSON definition is outlined below:
+  This class extends the ApiBaseResponse and add the attribute to hold the response data. Thus, in the case a typical **OmnixResponse** server payload will include the **responseCode**, **responseMessage**, **errors** and the **responseData** from the server. The JSON definition is outlined below:
 
 ```
     {
