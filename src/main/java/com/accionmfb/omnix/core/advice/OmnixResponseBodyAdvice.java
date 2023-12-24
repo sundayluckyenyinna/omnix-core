@@ -52,7 +52,7 @@ public class OmnixResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                                   @NonNull ServerHttpResponse response) {
         Object responseObject = body;
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
-        logger.logHttpApiResponse(body, servletResponse);
+        logger.logHttpApiResponse(body, servletResponse, returnType.getMethod());
 
         Method controllerMethod = returnType.getMethod();
         if(Objects.nonNull(body)) {

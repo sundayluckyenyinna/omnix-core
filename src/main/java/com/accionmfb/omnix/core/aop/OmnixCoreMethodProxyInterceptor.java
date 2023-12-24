@@ -2,7 +2,7 @@ package com.accionmfb.omnix.core.aop;
 
 import com.accionmfb.omnix.core.annotation.FallbackAdvice;
 import com.accionmfb.omnix.core.annotation.FallbackHandler;
-import com.accionmfb.omnix.core.annotation.NoAspectLogOperation;
+import com.accionmfb.omnix.core.annotation.RelaxAspectLogOperation;
 import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.injector.GenericDependencyInjector;
 import com.accionmfb.omnix.core.util.OmnixCoreApplicationUtil;
@@ -139,10 +139,10 @@ public class OmnixCoreMethodProxyInterceptor {
         if(OmnixCoreApplicationUtil.anyNull(method, clazz)){
             return true;
         }
-        if(Objects.nonNull(method.getAnnotation(NoAspectLogOperation.class))){
+        if(Objects.nonNull(method.getAnnotation(RelaxAspectLogOperation.class))){
             return false;
         }else{
-            return !Objects.nonNull(clazz.getAnnotation(NoAspectLogOperation.class));
+            return !Objects.nonNull(clazz.getAnnotation(RelaxAspectLogOperation.class));
         }
     }
 }

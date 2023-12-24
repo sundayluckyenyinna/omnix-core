@@ -67,6 +67,7 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
         if(Objects.nonNull(controllerMethod)) {
             EncryptionPolicyAdvice encryptionPolicyAdvice = controllerMethod.getAnnotation(EncryptionPolicyAdvice.class);
             if(Objects.nonNull(encryptionPolicyAdvice) && !shouldDecryptRequest(encryptionPolicyAdvice.value())){
+                logger.logHttpApiRequest(body, servletRequest, controllerMethod);
                 return body;
             }
         }
@@ -74,7 +75,7 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
 
            try{
                Class<?> tClazz = body.getClass();
-               logger.logHttpApiRequest(requestBody, servletRequest);
+               logger.logHttpApiRequest(requestBody, servletRequest, controllerMethod);
                EncryptionPayload encryptionPayload = objectMapper.readValue(requestBody, EncryptionPayload.class);
                if(Objects.isNull(encryptionPayload) || Objects.isNull(encryptionPayload.getRequest())){
                    log.info("Encrypted Request field has a NULL value: {}", encryptionPayload);
@@ -89,13 +90,13 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
                return body;
            }
        }
-        logger.logHttpApiRequest(requestBody, servletRequest);
+        logger.logHttpApiRequest(requestBody, servletRequest, controllerMethod);
        return body;
     }
 
     @Override
-    public Object handleEmptyBody(Object body, @NonNull HttpInputMessage inputMessage, @NonNull MethodParameter parameter, @NonNull Type targetType, @NonNull Class<? extends HttpMessageConverter<?>> converterType) {
-        logger.logHttpApiRequest(body, servletRequest);
+    public Object handleEmptyBody(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+        logger.logHttpApiRequest(body, servletRequest, parameter.getMethod());
         return body;
     }
 

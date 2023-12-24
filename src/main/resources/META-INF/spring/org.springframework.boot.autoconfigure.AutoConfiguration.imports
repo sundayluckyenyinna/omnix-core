@@ -1,7 +1,7 @@
 com.accionmfb.omnix.core.advice.OmnixRestControllerAdvice
 com.accionmfb.omnix.core.advice.OmnixResponseBodyAdvice
 com.accionmfb.omnix.core.advice.OmnixRequestBodyAdvice
-com.accionmfb.omnix.core.advice.NoRequestBodyInterceptorAdvice
+com.accionmfb.omnix.core.advice.NoRequestBodyInterceptorRegistry
 com.accionmfb.omnix.core.aop.OmnixCoreMethodProxyInterceptor
 com.accionmfb.omnix.core.config.DatasourceConfig
 com.accionmfb.omnix.core.config.OmnixCoreErrorCapture
@@ -15,3 +15,5 @@ com.accionmfb.omnix.core.localcache.core.impl.SimpleLocalParamCacheFallback
 com.accionmfb.omnix.core.logger.OmnixHttpLogger
 com.accionmfb.omnix.core.service.JdbcDatasourceServiceImpl
 com.accionmfb.omnix.core.util.OmnixCoreApplicationUtil
+com.accionmfb.omnix.core.localcache.http.LocalCacheUpdateController
+com.accionmfb.omnix.core.localcache.http.LocalCacheUpdateService

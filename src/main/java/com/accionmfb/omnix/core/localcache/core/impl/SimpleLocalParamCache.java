@@ -2,7 +2,7 @@ package com.accionmfb.omnix.core.localcache.core.impl;
 
 import com.accionmfb.omnix.core.annotation.FallbackAdvice;
 import com.accionmfb.omnix.core.annotation.FallbackHandler;
-import com.accionmfb.omnix.core.annotation.NoAspectLogOperation;
+import com.accionmfb.omnix.core.annotation.RelaxAspectLogOperation;
 import com.accionmfb.omnix.core.localcache.core.LocalParamCacheStorage;
 import com.accionmfb.omnix.core.registry.LocalSourceCacheRegistry;
 import com.accionmfb.omnix.core.service.DatasourceService;
@@ -16,7 +16,7 @@ import java.util.Objects;
 
 @Configuration
 @AutoConfiguration
-@NoAspectLogOperation
+@RelaxAspectLogOperation
 @RequiredArgsConstructor
 @FallbackAdvice(value = SimpleLocalParamCacheFallback.class)
 public class SimpleLocalParamCache implements LocalParamCacheStorage {

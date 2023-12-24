@@ -1,5 +1,7 @@
 package com.accionmfb.omnix.core.logger;
 
+import com.accionmfb.omnix.core.annotation.HttpLoggingAdvice;
+import com.accionmfb.omnix.core.commons.LogPolicy;
 import com.accionmfb.omnix.core.commons.LogStyle;
 import com.accionmfb.omnix.core.commons.StringValues;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,6 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 
@@ -20,10 +23,10 @@ import java.util.*;
 @Configuration
 @AutoConfiguration
 @RequiredArgsConstructor
-@EnableConfigurationProperties(value = LoggerProperties.class)
+@EnableConfigurationProperties(value = { LoggerStyleProperties.class })
 public class OmnixHttpLogger {
 
-    private final LoggerProperties loggerProperties;
+    private final LoggerStyleProperties loggerStyleProperties;
     private final ObjectMapper objectMapper;
 
     public void logHttpApiRequest(Object requestBody, HttpServletRequest servletRequest){
@@ -51,6 +54,12 @@ public class OmnixHttpLogger {
         }catch (Exception ignored){}
     }
 
+    public void logHttpApiRequest(Object requestBody, HttpServletRequest servletRequest, Method method){
+        if(shouldGoAheadWithRequestLogging(method)) {
+            logHttpApiRequest(requestBody, servletRequest);
+        }
+    }
+
     public void logHttpApiResponse(Object responseBody, HttpServletResponse servletResponse){
         try {
             log.info("");
@@ -60,6 +69,12 @@ public class OmnixHttpLogger {
             log.info("Response Headers: {}", getHeadersFromServletResponse(servletResponse));
             log.info("=======================================================================================================================");
         }catch (Exception ignored){}
+    }
+
+    public void logHttpApiResponse(Object responseBody, HttpServletResponse servletResponse, Method method){
+        if(shouldGoAheadWithResponseLogging(method)){
+            logHttpApiResponse(responseBody, servletResponse);
+        }
     }
 
     public void logHttpApiResponse(Object responseBody, int status, HttpServletResponse servletResponse){
@@ -73,8 +88,14 @@ public class OmnixHttpLogger {
         }catch (Exception ignored){}
     }
 
+    public void logHttpApiResponse(Object responseBody, int status, HttpServletResponse servletResponse, Method method){
+        if(shouldGoAheadWithResponseLogging(method)){
+            logHttpApiResponse(responseBody, status, servletResponse);
+        }
+    }
+
     private void writeBodyByLogStyle(Object body) throws JsonProcessingException {
-        if(getLogStyle(loggerProperties.getLogStyle()) == LogStyle.PRETTY_PRINT) {
+        if(getLogStyle(loggerStyleProperties.getLogStyle()) == LogStyle.PRETTY_PRINT) {
             log.info("Request Body: {}", Objects.isNull(body) ? StringValues.EMPTY_STRING : objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
         }else{
             log.info("Request Body: {}", Objects.isNull(body) ? StringValues.EMPTY_STRING : (body instanceof String ? (String) body : objectMapper.writeValueAsString(body)));
@@ -122,5 +143,33 @@ public class OmnixHttpLogger {
         }catch (Exception exception){
             return LogStyle.DEFAULT;
         }
+    }
+
+    private LogPolicy getResolvedLogPolicyRelaxation(Method controllerMethod){
+        HttpLoggingAdvice methodAnn = null;
+        HttpLoggingAdvice classAnn = null;
+        if(Objects.nonNull(controllerMethod)){
+            methodAnn = controllerMethod.getAnnotation(HttpLoggingAdvice.class);
+            classAnn = controllerMethod.getDeclaringClass().getAnnotation(HttpLoggingAdvice.class);
+        }
+
+        LogPolicy finalDirectionToRelax = null;
+        if(Objects.nonNull(methodAnn)){
+            finalDirectionToRelax = methodAnn.direction();
+        }
+        else if(Objects.nonNull(classAnn)){
+            finalDirectionToRelax = classAnn.direction();
+        }
+        return finalDirectionToRelax;
+    }
+
+    private boolean shouldGoAheadWithRequestLogging(Method method){
+        LogPolicy resolvedLogPolicy = getResolvedLogPolicyRelaxation(method);
+        return Objects.nonNull(resolvedLogPolicy) && (resolvedLogPolicy == LogPolicy.REQUEST || resolvedLogPolicy == LogPolicy.REQUEST_AND_RESPONSE);
+    }
+
+    private boolean shouldGoAheadWithResponseLogging(Method method){
+        LogPolicy resolvedLogPolicy = getResolvedLogPolicyRelaxation(method);
+        return Objects.nonNull(resolvedLogPolicy) && (resolvedLogPolicy == LogPolicy.RESPONSE || resolvedLogPolicy == LogPolicy.REQUEST_AND_RESPONSE);
     }
 }

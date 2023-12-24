@@ -5,7 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties(prefix = "logger.config.style")
-public class LoggerProperties {
+public class LoggerStyleProperties {
 
     private String logStyle = "default";
+
 }
