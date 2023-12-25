@@ -3,6 +3,8 @@ package com.accionmfb.omnix.core.util;
 import com.accionmfb.omnix.core.commons.StringValues;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -25,5 +27,13 @@ public class OmnixCoreApplicationUtil {
 
     public static boolean anyNull(Object ...objects){
         return Arrays.stream(objects).anyMatch(Objects::isNull);
+    }
+
+    public static <T> T returnOrdefault(T value, T defaultValue){
+        return Objects.isNull(value) ? defaultValue : value;
+    }
+
+    public static LocalDateTime getCurrentTodayDateTime(){
+        return LocalDateTime.now(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE));
     }
 }

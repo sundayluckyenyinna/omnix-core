@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -91,6 +92,15 @@ public class OmnixRestControllerAdvice {
 
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     public void onMissingServletRequestParameterException(MissingServletRequestParameterException exception, HttpServletResponse servletResponse) throws Exception {
+        ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
+        apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
+        apiBaseResponse.setResponseMessage(exception.getMessage());
+        apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
+        writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletResponse);
+    }
+
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    public void onHttpMessageNotReadableException(HttpMessageNotReadableException exception, HttpServletResponse servletResponse) throws Exception {
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
         apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
         apiBaseResponse.setResponseMessage(exception.getMessage());

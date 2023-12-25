@@ -9,6 +9,9 @@ com.accionmfb.omnix.core.config.UtilityConfig
 com.accionmfb.omnix.core.encryption.manager.SimpleOmnixEncryptionService
 com.accionmfb.omnix.core.encryption.AesEncryptionAlgorithmService
 com.accionmfb.omnix.core.event.LocalCacheConfigEventHandler
+com.accionmfb.omnix.core.event.LocalCacheSaveEventHandler
+com.accionmfb.omnix.core.event.LocalCacheUpdateEventHandler
+com.accionmfb.omnix.core.event.LocalCacheDeleteEventHandler
 com.accionmfb.omnix.core.localcache.config.SimpleLocalCacheConfigurer
 com.accionmfb.omnix.core.localcache.core.impl.SimpleLocalParamCache
 com.accionmfb.omnix.core.localcache.core.impl.SimpleLocalParamCacheFallback

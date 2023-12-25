@@ -1,12 +1,13 @@
 package com.accionmfb.omnix.core.event;
 
-import com.accionmfb.omnix.core.commons.ConfigSourceOperation;
-import com.accionmfb.omnix.core.registry.LocalSourceCacheRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Configuration
@@ -14,37 +15,19 @@ import org.springframework.context.event.EventListener;
 @RequiredArgsConstructor
 public class LocalCacheConfigEventHandler {
 
+    private final List<LocalCacheEventHandler> handlers;
+
     @EventListener(value = ConfigSourcePropertyChangedEvent.class)
     public void handleConfigPropertyChangedEvent(ConfigSourcePropertyChangedEvent event){
-        String paramKey = event.getParamKey();
-        String paramValue = event.getParamValue();
-        ConfigSourceOperation operation = event.getOperation();
-        processConfigPropertySourceByOperation(paramKey, paramValue, operation);
+        processConfigPropertySourceByOperation(event);
     }
 
-    private void processConfigPropertySourceByOperation(String paramKey, String paramValue, ConfigSourceOperation operation){
-        switch (operation){
-            case SAVE : {
-                log.info("Omnix discovers new config property with key: {} and value: {} inserted with SAVE operation in config database.", paramKey, paramValue);
-                if(LocalSourceCacheRegistry.getUnmodifiableStartingKeys().contains(paramKey)){
-                    log.info("Omnix resolved that application needs configuration with this key. System will now go ahead to save this param to the application in-memory config source for use.");
-                    LocalSourceCacheRegistry.setSource(paramKey, paramValue);
-                }else{
-                    log.info("Omnix resolved that this new param is not needed by the running application and will thus, not be added to the in-memory config source");
-                }
-                break;
-            }
-            case UPDATE : {
-                log.info("Omnix discovers existing parameter with key: {} updated in database with UPDATE operation. System will now go ahead to update the configuration in the in-memory config source for subsequent application use", paramKey);
-                LocalSourceCacheRegistry.setSource(paramKey, paramValue);
-                break;
-            }
-            case DELETE : {
-                log.info("Omnix discovers a DELETE operation on config database for param with key: {}. System will now go ahead to delete it from the in-memory application config source", paramKey);
-                LocalSourceCacheRegistry.removeEntry(paramKey);
-                break;
-            }
-            default : log.info("Omnix detected a {} operation on param in database. Unsupported operation detected. System will skip this operation and keep the in-memory application source intact.", operation);
+    private void processConfigPropertySourceByOperation(ConfigSourcePropertyChangedEvent event){
+        LocalCacheEventHandler handler = handlers.stream().filter(localCacheEventHandler -> localCacheEventHandler.supportDBOperation(event.getOperation())).findFirst().orElse(null);
+        if(Objects.nonNull(handler)){
+            handler.handleEvent(event);
+        }else {
+            log.info("Omnix detected a {} operation on param in database. Unsupported operation detected. System will skip this operation and keep the in-memory application source intact.", event.getOperation());
         }
     }
 }

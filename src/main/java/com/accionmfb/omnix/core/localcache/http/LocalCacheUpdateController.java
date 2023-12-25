@@ -1,10 +1,11 @@
 package com.accionmfb.omnix.core.localcache.http;
 
-import com.accionmfb.omnix.core.annotation.EncryptionPolicyAdvice;
-import com.accionmfb.omnix.core.commons.EncryptionPolicy;
+import com.accionmfb.omnix.core.payload.OmnixApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -13,7 +14,6 @@ public class LocalCacheUpdateController {
 
     private final LocalCacheUpdateService service;
 
-    @EncryptionPolicyAdvice(EncryptionPolicy.RELAX_ALL)
     @PostMapping(value = "/post")
     public ResponseEntity<String> postLocalCacheKeyValueConfiguration(@RequestBody LocalCacheDataRequest dataRequest) {
         return ResponseEntity.ok(service.saveNewConfigParams(dataRequest));
@@ -27,5 +27,10 @@ public class LocalCacheUpdateController {
     @DeleteMapping(value = "/delete")
     public ResponseEntity<String> deleteLocalKeyValueConfiguration(@RequestBody LocalCacheDeleteRequest request){
         return ResponseEntity.ok(service.deleteConfigParams(request.getKeys()));
+    }
+
+    @GetMapping(value = "/configuration-pairs")
+    public ResponseEntity<OmnixApiResponse<List<LocalCachePair>>> getLocalCacheConfigurationPairs(){
+        return ResponseEntity.ok(service.getApplicationConfigurationContext());
     }
 }
