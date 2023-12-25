@@ -286,6 +286,6 @@ This software is the property of Accion MFB and is provided under the following 
 
 ## Contact Information
 
-For questions regarding this license, please contact Accion MFB at ![contact@email.com](https://gitlab.com/uploads/-/system/user/avatar/12079959/avatar.png?width=100).
+For questions regarding this license, please contact Accion MFB at [support@example.com](mailto:sundayluckyenyinnadeveloper@gmail.com).
 
 © 2023 Accion MFB. All rights reserved.
