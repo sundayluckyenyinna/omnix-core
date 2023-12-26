@@ -6,7 +6,7 @@
 >abstracted!_**
 
 ## Requirement & Usage
-To use the omnix-core starter library insert the following snippet to the pom.xml.
+To use the omnix-core starter library, insert the following snippet to the pom.xml.
 ```html
   <dependency>
     <groupId>com.accionmfb.omnix</groupId>
@@ -16,6 +16,7 @@ To use the omnix-core starter library insert the following snippet to the pom.xm
 ```
 
 The above starter dependency is supported for **JDK 17 and above** and **Spring 3.1.2 and above**.
+
 ## Background
 The omnix-core is a core library of the Omnix Middleware that must be incorporated into any simple Omnix micro-service. The library is an opinionated library that automates alot of manual tasks corresponding to cross-cutting concerns across all microservices.
 
