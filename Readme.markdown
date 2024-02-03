@@ -91,7 +91,7 @@ Definition of the response and exception format should be uniform to ensure the 
 
 - **ApiBaseResponse**
   This class is the base format for every response that will be sent out from the server side. This class defines the **responseCode**, **responseMessage** and the **errors** attributes without necessarily specifying the server response data. The JSON payload is as defined below:
-```
+```json
     {
        "responseCode": "07",
        "responseMessage": "Failed model",
@@ -101,7 +101,7 @@ Definition of the response and exception format should be uniform to ensure the 
 - **OmnixApiResponse**
   This class extends the ApiBaseResponse and add the attribute to hold the response data. Thus, in the case a typical **OmnixResponse** server payload will include the **responseCode**, **responseMessage**, **errors** and the **responseData** from the server. The JSON definition is outlined below:
 
-```
+```json
     {
        "responseCode": "07",
        "responseMessage": "Failed model",
@@ -113,7 +113,7 @@ Definition of the response and exception format should be uniform to ensure the 
 - **OmnixApiException**
   This class follows the fluent design pattern. It is the standard exception that should be thrown against validation in the service or controller class. The OmnixAPiException thrown from anywhere in your project will be properly formatted by the library before reaching the client. The following shows a sample of how to construct and throw the exception to the client, when there is, for example, an insufficient balance on the customer's account for funds-transfer:
 
-```
+```java
     if(accountBalance < amountToDebit){
         throw OmnixApiException.newInstance()
             .withCode(ResponseCodes.INSUFFICIENT_BALANCE.getResponseCode())
@@ -124,7 +124,7 @@ Definition of the response and exception format should be uniform to ensure the 
 ```
 The above is a very fluent design style for the OmnixApiException so that exception object can be built in the same time and line that they are thrown.The Exception advice that comes with the starter library will then format the response to the client as below:
 
-```
+```json lines
     400 (BAD REQUEST)
     {
        "responseCode": "05",
@@ -174,7 +174,7 @@ The working principle of local configuration cache registry is simple and straig
 
 To use the feature of the local cache registry, **omnix-core** exposes a bean that can be autowired in any other bean discoverable by the Spring application context or bean factory. The following example shows how this bean can be injected and used in a service class:
 
-```html
+```java
 // imports
 
 @Slf4j
@@ -219,7 +219,7 @@ The developer might find himself/herself not using this feature at all, but it i
 
 The following outlines an example of the use of this fallback mechanism:
 
-```html
+```java
 
 // imports
 
