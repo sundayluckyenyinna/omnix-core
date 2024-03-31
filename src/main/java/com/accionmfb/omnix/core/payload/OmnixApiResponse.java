@@ -46,4 +46,9 @@ public class OmnixApiResponse<T>{
         this.errors.add(error);
         return this;
     }
+
+    public OmnixApiResponse<T> withData(T data){
+        setResponseData(data);
+        return this;
+    }
 }
