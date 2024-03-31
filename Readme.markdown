@@ -20,7 +20,7 @@ The above starter dependency is supported for **JDK 17 and above** and **Spring 
 ## Background
 The omnix-core is a core library of the Omnix Middleware that must be incorporated into any simple Omnix micro-service. The library is an opinionated library that automates alot of manual tasks corresponding to cross-cutting concerns across all microservices.
 
-Omnix-core design pattern follows the philosophy of the spring-boot paradigm which favours convention over configuration. This implies that the features and behaviour of the starter library is highly configurable at runtime. This configurations can be applied either by settings made in the application.yml/application.properties file or via annotations exposed by the starter library.
+Omnix-core design pattern follows the philosophy of the spring-boot paradigm which favours convention over configuration. This implies that the features and behaviour of the starter library is highly configurable at runtime. These configurations can be applied either by settings made in the application.yml/application.properties file or via annotations exposed by the starter library.
 
 Furthermore, as it claims to be a starter library, once added to a project as a dependency, there is no further need for a manual configuration to include it in your project. Simply adding it to your project as a dependency declared in your maven build tool, it automatically registers in the spring-boot application context and all of its component beans are registered in the Dependency Injection container of the spring-boot factory!
 
