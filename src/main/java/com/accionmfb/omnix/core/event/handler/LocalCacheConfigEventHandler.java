@@ -1,5 +1,6 @@
-package com.accionmfb.omnix.core.event;
+package com.accionmfb.omnix.core.event.handler;
 
+import com.accionmfb.omnix.core.event.data.ConfigSourcePropertyChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

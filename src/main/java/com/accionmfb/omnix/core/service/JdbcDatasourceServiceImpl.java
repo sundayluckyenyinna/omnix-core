@@ -1,8 +1,8 @@
 package com.accionmfb.omnix.core.service;
 
 import com.accionmfb.omnix.core.commons.ConfigSourceOperation;
-import com.accionmfb.omnix.core.event.ConfigSourcePropertyChangedEvent;
-import com.accionmfb.omnix.core.localcache.properties.LocalSourceCacheProperties;
+import com.accionmfb.omnix.core.event.data.ConfigSourcePropertyChangedEvent;
+import com.accionmfb.omnix.core.localsource.properties.LocalSourceCacheProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

@@ -4,7 +4,7 @@ import com.accionmfb.omnix.core.annotation.FallbackAdvice;
 import com.accionmfb.omnix.core.annotation.FallbackHandler;
 import com.accionmfb.omnix.core.annotation.RelaxAspectLogOperation;
 import com.accionmfb.omnix.core.commons.StringValues;
-import com.accionmfb.omnix.core.injector.GenericDependencyInjector;
+import com.accionmfb.omnix.core.injector.FallbackMechanismGenericDependencyInjector;
 import com.accionmfb.omnix.core.util.OmnixCoreApplicationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,7 +109,7 @@ public class OmnixCoreMethodProxyInterceptor {
                     Parameter[] parameters = method.getParameters();
                     Object[] methodArgs = joinPoint.getArgs();
                     Method fallbackMethod = getFallbackMethodByNameInClass(handler.methodName(), methodClass);
-                    Object[] invocableMethodArgs = GenericDependencyInjector.resolveFallbackMethodArgumentsInjection(fallbackMethod, parameters, methodArgs);
+                    Object[] invocableMethodArgs = FallbackMechanismGenericDependencyInjector.resolveFallbackMethodArgumentsInjection(fallbackMethod, parameters, methodArgs);
                     return ReflectionUtils.invokeMethod(fallbackMethod, methodClassObject, invocableMethodArgs);
                 }
             }

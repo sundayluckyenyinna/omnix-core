@@ -31,7 +31,7 @@ public class OmnixHttpLogger {
 
     public void logHttpApiRequest(Object requestBody, HttpServletRequest servletRequest){
         try {
-            log.info("");
+            System.out.println();
             log.info("=============================================  HTTP REQUEST START ======================================================");
             log.info("Request URI: {} {}", servletRequest.getMethod(), servletRequest.getRequestURI());
             log.info("Request SessionId: {}", servletRequest.getRequestedSessionId());
@@ -50,7 +50,6 @@ public class OmnixHttpLogger {
             log.info("Local Address: {}", servletRequest.getLocalAddr());
             log.info("Local Port: {}", servletRequest.getLocalPort());
             log.info("=======================================================================================================================");
-            log.info("");
         }catch (Exception ignored){}
     }
 
@@ -62,12 +61,13 @@ public class OmnixHttpLogger {
 
     public void logHttpApiResponse(Object responseBody, HttpServletResponse servletResponse){
         try {
-            log.info("");
+            System.out.println();
             log.info("=============================================  HTTP RESPONSE END ======================================================");
             log.info("Response Status: {}", HttpStatus.resolve(servletResponse.getStatus()));
             writeBodyByLogStyle(responseBody);
             log.info("Response Headers: {}", getHeadersFromServletResponse(servletResponse));
             log.info("=======================================================================================================================");
+            System.out.println();
         }catch (Exception ignored){}
     }
 

@@ -2,7 +2,7 @@ package com.accionmfb.omnix.core.registry;
 
 import com.accionmfb.omnix.core.commons.SMART_PRINT_FORMAT;
 import com.accionmfb.omnix.core.commons.StringValues;
-import com.accionmfb.omnix.core.localcache.properties.LocalSourceCacheProperties;
+import com.accionmfb.omnix.core.localsource.properties.LocalSourceCacheProperties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 

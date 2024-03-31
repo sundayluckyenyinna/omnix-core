@@ -1,6 +1,7 @@
-package com.accionmfb.omnix.core.event;
+package com.accionmfb.omnix.core.event.handler;
 
 import com.accionmfb.omnix.core.commons.ConfigSourceOperation;
+import com.accionmfb.omnix.core.event.data.ConfigSourcePropertyChangedEvent;
 import com.accionmfb.omnix.core.registry.LocalSourceCacheRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;

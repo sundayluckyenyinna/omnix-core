@@ -1,4 +1,4 @@
-package com.accionmfb.omnix.core.localcache.core.impl;
+package com.accionmfb.omnix.core.localsource.core.impl;
 
 import com.accionmfb.omnix.core.annotation.FallbackParam;
 import com.accionmfb.omnix.core.service.DatasourceService;

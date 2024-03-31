@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -33,12 +35,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @AutoConfiguration
-@RestControllerAdvice(basePackages = { "com.accionmfb.omnix" })
+@RestControllerAdvice
 @RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class OmnixRestControllerAdvice {
 
-    private final ObjectMapper objectMapper;
     private final OmnixHttpLogger logger;
+    private final ObjectMapper objectMapper;
     private final EncryptionProperties encryptionProperties;
     private final OmnixEncryptionService omnixEncryptionService;
 

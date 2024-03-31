@@ -6,7 +6,7 @@ import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.encryption.AesEncryptionAlgorithmService;
 import com.accionmfb.omnix.core.encryption.EncryptionAlgorithmService;
 import com.accionmfb.omnix.core.encryption.EncryptionProperties;
-import com.accionmfb.omnix.core.localcache.core.LocalParamCacheStorage;
+import com.accionmfb.omnix.core.localsource.core.LocalParamCacheStorage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

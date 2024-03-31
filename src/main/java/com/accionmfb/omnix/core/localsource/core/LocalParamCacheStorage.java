@@ -1,4 +1,4 @@
-package com.accionmfb.omnix.core.localcache.core;
+package com.accionmfb.omnix.core.localsource.core;
 
 import lombok.NonNull;
 

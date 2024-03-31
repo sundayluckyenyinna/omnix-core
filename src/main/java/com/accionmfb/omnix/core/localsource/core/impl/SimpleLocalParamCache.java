@@ -1,9 +1,9 @@
-package com.accionmfb.omnix.core.localcache.core.impl;
+package com.accionmfb.omnix.core.localsource.core.impl;
 
 import com.accionmfb.omnix.core.annotation.FallbackAdvice;
 import com.accionmfb.omnix.core.annotation.FallbackHandler;
 import com.accionmfb.omnix.core.annotation.RelaxAspectLogOperation;
-import com.accionmfb.omnix.core.localcache.core.LocalParamCacheStorage;
+import com.accionmfb.omnix.core.localsource.core.LocalParamCacheStorage;
 import com.accionmfb.omnix.core.registry.LocalSourceCacheRegistry;
 import com.accionmfb.omnix.core.service.DatasourceService;
 import lombok.NonNull;

@@ -1,11 +1,9 @@
-package com.accionmfb.omnix.core.event;
+package com.accionmfb.omnix.core.event.data;
 
 import com.accionmfb.omnix.core.commons.ConfigSourceOperation;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.ApplicationEvent;
-
-import java.time.Clock;
 
 @Getter
 @Setter
@@ -30,7 +28,4 @@ public class ConfigSourcePropertyChangedEvent extends ApplicationEvent {
         super(source);
     }
 
-    public ConfigSourcePropertyChangedEvent(Object source, Clock clock) {
-        super(source);
-    }
 }

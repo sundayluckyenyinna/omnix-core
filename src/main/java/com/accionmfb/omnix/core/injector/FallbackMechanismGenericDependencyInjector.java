@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 
-public class GenericDependencyInjector {
+public class FallbackMechanismGenericDependencyInjector {
 
     public static Object[] resolveFallbackMethodArgumentsInjection(Method method, Parameter[] causingParameters, Object ... objects){
         List<Parameter> parameters = List.of(method.getParameters());

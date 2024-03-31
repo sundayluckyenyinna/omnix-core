@@ -32,11 +32,4 @@ public class UtilityConfig {
         return new Reflections("com.accionmfb.omnix");
     }
 
-    public static ObjectMapper staticMapper(){
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
-    }
 }

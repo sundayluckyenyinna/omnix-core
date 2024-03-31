@@ -1,4 +1,4 @@
-package com.accionmfb.omnix.core.localcache.http;
+package com.accionmfb.omnix.core.localsource.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

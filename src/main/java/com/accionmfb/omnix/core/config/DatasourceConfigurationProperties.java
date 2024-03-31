@@ -9,7 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "spring.datasource")
 public class DatasourceConfigurationProperties {
     private String driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    private String url = "jdbc:sqlserver://10.10.0.32;databaseName=omnix;encrypt=true;trustServerCertificate=true;";
+    private String url = "jdbc:sqlserver://localhost;databaseName=omnix;encrypt=true;trustServerCertificate=true;";
     private String username = "omnixservice";
     private String password = "Ab123456";
+    private String host = "localhost";
+    private String port = "3306";
 }
