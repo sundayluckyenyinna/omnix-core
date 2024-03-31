@@ -165,7 +165,7 @@ The working principle of local configuration cache registry is simple and straig
 - On application startup, **omnix-core** scans all enum classes annotated with the **@RequiredOmnixParam** annotation for all property keys that are needed by the application business logic.
 
 - **omnix-core** read up all the values in the database corresponding to the keys read in the enum classes.
-- When an update is made to add/update/delete a configuration, the update is made in the **Gateway** service application. This change will then trigger the Gateway service to notify all the services registered in the eureka server. This notification will then make all the registered services updates their ConcurrentHashMap of configuration registry.
+- When an update is made to add/update/delete a configuration, the *Change Data Capture (CDC)* engine will be triggered and the event propagated to the application. The ConcurrentHashMap will then update all necessary changed configuration data in its registry.
 - This way, the configurations in the ConcurrentHashMap will always be in sync with the database and only the needed configurations needed by the application is always in the memory of the application at a particular point in time.
 
 .
