@@ -83,6 +83,7 @@ public class SimpleLocalCacheConfigurer {
                             DebeziumPayload payload = scheme.getPayload();
                             if (Objects.nonNull(payload) && Objects.nonNull(payload.getAfter())) {
                                 Map<String, Object> afterChange = payload.getAfter();
+                                log.info("Change Captured: {}", afterChange);
                                 String paramKey = String.valueOf(afterChange.get(localSourceCacheProperties.getParamKeyColumnName()));
                                 String paramValue = String.valueOf(afterChange.get(localSourceCacheProperties.getParamValueColumnName()));
                                 ConfigSourcePropertyChangedEvent event = ConfigSourcePropertyChangedEvent.of(afterChange, paramKey, paramValue, ConfigSourceOperation.UPDATE);
