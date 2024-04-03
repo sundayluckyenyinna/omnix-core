@@ -32,8 +32,4 @@ public class OmnixCoreApplicationUtil {
     public static <T> T returnOrdefault(T value, T defaultValue){
         return Objects.isNull(value) ? defaultValue : value;
     }
-
-    public static LocalDateTime getCurrentTodayDateTime(){
-        return LocalDateTime.now(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE));
-    }
 }
