@@ -20,6 +20,8 @@ public class LocalSourceCacheProperties {
     private boolean fetchOnStartup = true;
     private String defaultParamValue = StringValues.EMPTY_STRING;
     private String dbServerName;
+    private String connectorClass = "io.debezium.connector.mysql.MySqlConnector";
+    private String connectionName = "my-connector-name";
 
     private boolean enableVerboseLogging = true;
     private String logFormat = "logging";

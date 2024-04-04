@@ -119,8 +119,8 @@ public class SimpleLocalCacheConfigurer {
 
     private Properties getConnectorProperties(){
         Properties props = new Properties();
-        props.setProperty(NAME, "my-connector-name");
-        props.setProperty(CONNECTOR_CLASS, "io.debezium.connector.mysql.MySqlConnector");
+        props.setProperty(NAME, localSourceCacheProperties.getConnectionName());
+        props.setProperty(CONNECTOR_CLASS, localSourceCacheProperties.getConnectorClass());
         props.setProperty(DATABASE_HOSTNAME, returnOrdefault(localSourceCacheProperties.getHost(), datasourceProperties.getHost()));
         props.setProperty(DATABASE_PORT, returnOrdefault(localSourceCacheProperties.getPort(), datasourceProperties.getPort()));
         props.setProperty(DATABASE_USER, returnOrdefault(localSourceCacheProperties.getUsername(), datasourceProperties.getUsername()));
@@ -128,15 +128,15 @@ public class SimpleLocalCacheConfigurer {
         props.setProperty(DB_NAME, localSourceCacheProperties.getDatabase());
         props.setProperty(DB_SERVER_ID, returnOrdefault(localSourceCacheProperties.getDatabaseId(), String.valueOf(System.currentTimeMillis())));
         props.setProperty(DB_SERVER_NAME, returnOrdefault(localSourceCacheProperties.getDbServerName(), UUID.randomUUID().toString()));
-        props.setProperty(OFFSET_STORAGE_FILE_FILENAME, "/Users/mac/Documents/WORK/ACCION/cbi/testdb.dat");
         props.setProperty(TABLE_INCLUDE_LIST, String.join(StringValues.DOT, localSourceCacheProperties.getDatabase(), localSourceCacheProperties.getSourceTableName()));
-        props.setProperty(OFFSET_STORAGE, "org.apache.kafka.connect.storage.FileOffsetBackingStore");
-        props.setProperty(SCHEMA_HISTORY_INTERNAL, "io.debezium.storage.file.history.FileSchemaHistory");
-        props.setProperty(SCHEMA_HISTORY_INTERNAL_FILE_NAME, "/Users/mac/Documents/WORK/ACCION/cbi/schemahistory.dat");
+        props.setProperty(OFFSET_STORAGE, "org.apache.kafka.connect.storage.MemoryOffsetBackingStore");
+        props.setProperty(SCHEMA_HISTORY_INTERNAL, "io.debezium.relational.history.MemorySchemaHistory");
         props.setProperty(TOPIC_PREFIX, "embedded");
         props.setProperty(OFFSET_FLUSH_INTERVAL, "1000");
         props.setProperty(SNAPSHOT_MODE, "schema_only");
         props.setProperty(DB_CONNECTION_TIME_ZONE, StringValues.EMPTY_STRING);
+        props.setProperty(WHITELIST_DATABASE_CAPTURE, "true");
+        props.setProperty(WHITELIST_TABLE_CAPTURE, "true");
         props.setProperty(LOG_LEVEL, "ERROR");
         return props;
     }
@@ -151,15 +151,15 @@ public class SimpleLocalCacheConfigurer {
         String DB_NAME = "database.dbname";
         String DB_SERVER_ID = "database.server.id";
         String DB_SERVER_NAME = "database.server.name";
-        String OFFSET_STORAGE_FILE_FILENAME = "offset.storage.file.filename";
         String TABLE_INCLUDE_LIST = "table.include.list";
         String OFFSET_STORAGE = "offset.storage";
         String SCHEMA_HISTORY_INTERNAL = "schema.history.internal";
-        String SCHEMA_HISTORY_INTERNAL_FILE_NAME = "schema.history.internal.file.filename";
         String TOPIC_PREFIX = "topic.prefix";
         String OFFSET_FLUSH_INTERVAL = "offset.flush.interval.ms";
         String SNAPSHOT_MODE = "snapshot.mode";
         String DB_CONNECTION_TIME_ZONE = "database.connectionTimeZone";
         String LOG_LEVEL = "log4j2.level.io.debezium";
+        String WHITELIST_DATABASE_CAPTURE = "schema.history.internal.store.only.captured.databases.ddl";
+        String WHITELIST_TABLE_CAPTURE = "schema.history.internal.store.only.captured.tables.ddl";
     }
 }
