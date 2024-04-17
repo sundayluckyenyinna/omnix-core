@@ -2,7 +2,7 @@ package com.accionmfb.omnix.core.registry;
 
 import com.accionmfb.omnix.core.commons.SMART_PRINT_FORMAT;
 import com.accionmfb.omnix.core.commons.StringValues;
-import com.accionmfb.omnix.core.localsource.properties.LocalSourceCacheProperties;
+import com.accionmfb.omnix.core.localsource.properties.LocalSourceProperties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,7 +64,7 @@ public class LocalSourceCacheRegistry {
     }
 
     @SneakyThrows
-    public static void printRegistry(SMART_PRINT_FORMAT format, LocalSourceCacheProperties properties){
+    public static void printRegistry(SMART_PRINT_FORMAT format, LocalSourceProperties properties){
         if(format == SMART_PRINT_FORMAT.LOGGING){
             logRegistryConfig(properties);
         } else if (format == SMART_PRINT_FORMAT.SYSTEM_DEFAULT) {
@@ -83,7 +83,7 @@ public class LocalSourceCacheRegistry {
         }
     }
 
-    public static void logRegistryConfig(LocalSourceCacheProperties properties){
+    public static void logRegistryConfig(LocalSourceProperties properties){
 
         log.info("");
         log.info("OMNIX PARAMS CACHE CONFIGURATIONS");
@@ -111,13 +111,13 @@ public class LocalSourceCacheRegistry {
 
         if(shouldPrint) {
             log.info(write("-", pad));
-            log.info("");
+            System.out.println();
         }else{
-            log.info("");
+            System.out.println();
         }
     }
 
-    public static void printRegistryConfig(LocalSourceCacheProperties properties){
+    public static void printRegistryConfig(LocalSourceProperties properties){
 
         System.out.println();
         System.out.println("OMNIX PARAMS CACHE CONFIGURATIONS");
@@ -151,7 +151,7 @@ public class LocalSourceCacheRegistry {
         }
     }
 
-    private static List<String> getMetaData(LocalSourceCacheProperties properties){
+    private static List<String> getMetaData(LocalSourceProperties properties){
         return Arrays.asList(
                 "Table Name: " + properties.getSourceTableName(),
                 "Param Keys Column Name: " + properties.getParamKeyColumnName(),

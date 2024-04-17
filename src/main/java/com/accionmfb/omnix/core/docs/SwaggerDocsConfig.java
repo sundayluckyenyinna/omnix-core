@@ -1,18 +1,29 @@
 package com.accionmfb.omnix.core.docs;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.SecurityReference;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
+import springfox.documentation.spring.web.plugins.Docket;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Configuration
-@AutoConfiguration
+
 @RequiredArgsConstructor
 @EnableConfigurationProperties(value = SwaggerDocProperties.class)
 public class SwaggerDocsConfig {
@@ -20,18 +31,42 @@ public class SwaggerDocsConfig {
     private final SwaggerDocProperties swaggerDocProperties;
 
     @Bean
-    public OpenAPI openAPI() {
-        Contact contact = new Contact();
-        contact.setEmail(swaggerDocProperties.getEmail());
-        contact.setName(swaggerDocProperties.getName());
-        contact.setUrl(swaggerDocProperties.getUrl());
+    public Docket api() {
+        boolean basePackageSet = Objects.nonNull(swaggerDocProperties.getControllerPackage());
+        String basePackages = swaggerDocProperties.getControllerPackage();
+        return new Docket(DocumentationType.OAS_30)
+                .select()
+                .apis(basePackageSet ? RequestHandlerSelectors.basePackage(basePackages) : RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build()
+                .securitySchemes(Collections.singletonList(securityScheme()))
+                .securityContexts(Collections.singletonList(securityContext()))
+                .apiInfo(apiInfo());
+    }
 
-        Info info = new Info()
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
                 .title(swaggerDocProperties.getTitle())
+                .description(swaggerDocProperties.getDescription())
+                .license("MIT License")
                 .version(swaggerDocProperties.getVersion())
-                .contact(contact)
-                .description(swaggerDocProperties.getDescription());
+                .licenseUrl(swaggerDocProperties.getUrl())
+                .build();
+    }
 
-        return new OpenAPI().info(info);
+    private springfox.documentation.service.SecurityScheme securityScheme() {
+        return new ApiKey("Authorization", "Authorization", "Header");
+    }
+
+    private SecurityContext securityContext() {
+        return SecurityContext.builder().securityReferences(defaultAuth())
+                .forPaths(PathSelectors.any()).build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return Arrays.asList(new SecurityReference("Authorization", authorizationScopes));
     }
 }

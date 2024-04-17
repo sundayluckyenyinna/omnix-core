@@ -1,12 +1,16 @@
 package com.accionmfb.omnix.core.payload;
 
+import com.accionmfb.omnix.core.commons.ResponseCodes;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -17,9 +21,17 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(callSuper = false)
 public class OmnixApiResponse<T>{
+
+    @ApiModelProperty(example = "00", value = "response code for the request", required = true)
     protected String responseCode;
+
+    @Schema(example = "Successful operation", description = "response message for the request and describing the API response", required = true)
     protected String responseMessage;
+
+    @Schema(example = "[ ]", description = "List of customer side errors")
     protected List<String> errors = new ArrayList<>();
+
+
     private T responseData;
 
     public static <T> OmnixApiResponse<T> getInstance(Class<T> tClass){
@@ -37,7 +49,7 @@ public class OmnixApiResponse<T>{
     }
 
     public OmnixApiResponse<T> withErrors(Collection<String> errors){
-        setErrors(errors.stream().toList());
+        setErrors(new ArrayList<>(errors));
         return this;
     }
 
@@ -49,6 +61,13 @@ public class OmnixApiResponse<T>{
 
     public OmnixApiResponse<T> withData(T data){
         setResponseData(data);
+        return this;
+    }
+
+    public OmnixApiResponse<T> ofSuccess(T responseData){
+        setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+        setResponseMessage("Successful operation");
+        setResponseData(responseData);
         return this;
     }
 }

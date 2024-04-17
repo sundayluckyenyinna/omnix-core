@@ -5,10 +5,13 @@
  */
 package com.accionmfb.omnix.core.commons;
 
+import lombok.Getter;
+
 /**
  *
  * @author bokon
  */
+@Getter
 public enum ResponseCodes {
     SUCCESS_CODE("00"),
     IP_BANNED_CODE("01"),
@@ -60,10 +63,6 @@ public enum ResponseCodes {
     REVERSE_CODE("98");
 
     private String responseCode;
-
-    public String getResponseCode() {
-        return this.responseCode;
-    }
 
     ResponseCodes(String responseCode) {
         this.responseCode = responseCode;

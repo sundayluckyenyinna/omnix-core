@@ -3,9 +3,11 @@ package com.accionmfb.omnix.core.config;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @Data
 @ToString
+@Validated
 @ConfigurationProperties(prefix = "spring.datasource")
 public class DatasourceConfigurationProperties {
     private String driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";

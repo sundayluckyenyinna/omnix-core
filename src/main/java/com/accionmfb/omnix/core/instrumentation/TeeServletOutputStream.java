@@ -1,8 +1,8 @@
 package com.accionmfb.omnix.core.instrumentation;
 
 import org.apache.commons.io.output.TeeOutputStream;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.WriteListener;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 import java.io.IOException;
 import java.io.OutputStream;

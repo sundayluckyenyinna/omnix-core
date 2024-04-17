@@ -5,7 +5,8 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({
-        OmnixHttpLogger.class
+        OmnixHttpLogger.class,
+        OmnixFeignLogger.class
 })
-public class LoggerConfig {
+public class LoggerModule {
 }

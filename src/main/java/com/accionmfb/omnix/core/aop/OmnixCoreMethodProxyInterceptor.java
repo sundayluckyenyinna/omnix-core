@@ -13,7 +13,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -29,7 +28,6 @@ import java.util.Objects;
 @Slf4j
 @Aspect
 @Configuration
-@AutoConfiguration
 @EnableAspectJAutoProxy
 @RequiredArgsConstructor
 public class OmnixCoreMethodProxyInterceptor {

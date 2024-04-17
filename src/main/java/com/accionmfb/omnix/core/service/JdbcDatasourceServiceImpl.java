@@ -2,10 +2,9 @@ package com.accionmfb.omnix.core.service;
 
 import com.accionmfb.omnix.core.commons.ConfigSourceOperation;
 import com.accionmfb.omnix.core.event.data.ConfigSourcePropertyChangedEvent;
-import com.accionmfb.omnix.core.localsource.properties.LocalSourceCacheProperties;
+import com.accionmfb.omnix.core.localsource.properties.LocalSourceProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Configuration;
@@ -18,21 +17,21 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Configuration
-@AutoConfiguration
+
 @RequiredArgsConstructor
 @ConditionalOnBean(value = JdbcTemplate.class)
 public class JdbcDatasourceServiceImpl implements DatasourceService{
 
     private final JdbcTemplate jdbcTemplate;
     private final ApplicationEventPublisher publisher;
-    private final LocalSourceCacheProperties localSourceCacheProperties;
+    private final LocalSourceProperties localSourceProperties;
 
     @Override
     public Map<String, String> getOmnixParams(List<String> requiredParamKeys){
-        String tableName = localSourceCacheProperties.getSourceTableName();
-        String paramKeyColumnName = localSourceCacheProperties.getParamKeyColumnName();
-        String paramValueColumnName = localSourceCacheProperties.getParamValueColumnName();
-        String defaultValue = localSourceCacheProperties.getDefaultParamValue();
+        String tableName = localSourceProperties.getSourceTableName();
+        String paramKeyColumnName = localSourceProperties.getParamKeyColumnName();
+        String paramValueColumnName = localSourceProperties.getParamValueColumnName();
+        String defaultValue = localSourceProperties.getDefaultParamValue();
 
         String inSql = String.join(",", Collections.nCopies(requiredParamKeys.size(), "?"));
         String sql = String.format("select %s, %s from %s where %s in (%s)", paramKeyColumnName, paramValueColumnName, tableName, paramKeyColumnName, inSql);
@@ -54,8 +53,8 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
 
         Map<String, String> paramAndValue = new HashMap<>();
         stringMap.forEach(map -> {
-            String key = map.get(localSourceCacheProperties.getParamKeyColumnName());
-            String value = map.get(localSourceCacheProperties.getParamValueColumnName());
+            String key = map.get(localSourceProperties.getParamKeyColumnName());
+            String value = map.get(localSourceProperties.getParamValueColumnName());
             paramAndValue.put(key, value);
         });
 
@@ -64,9 +63,9 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
 
     @Override
     public <T> boolean saveOmnixParams(T paramKey, String paramValue){
-        String tableName = localSourceCacheProperties.getSourceTableName();
-        String paramKeyColumnName = localSourceCacheProperties.getParamKeyColumnName();
-        String paramValueColumnName = localSourceCacheProperties.getParamValueColumnName();
+        String tableName = localSourceProperties.getSourceTableName();
+        String paramKeyColumnName = localSourceProperties.getParamKeyColumnName();
+        String paramValueColumnName = localSourceProperties.getParamValueColumnName();
 
         String sql = String.format("insert into %s(%s, %s) values (?, ?)", tableName, paramKeyColumnName, paramValueColumnName);
         int affectedRows = jdbcTemplate.update(sql, String.valueOf(paramKey), paramValue);
@@ -82,9 +81,9 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
 
     @Override
     public <T> boolean updateOmnixParam(T paramKey, String newParamValue){
-        String tableName = localSourceCacheProperties.getSourceTableName();
-        String paramKeyColumnName = localSourceCacheProperties.getParamKeyColumnName();
-        String paramValueColumnName = localSourceCacheProperties.getParamValueColumnName();
+        String tableName = localSourceProperties.getSourceTableName();
+        String paramKeyColumnName = localSourceProperties.getParamKeyColumnName();
+        String paramValueColumnName = localSourceProperties.getParamValueColumnName();
 
         String sql = String.format("update %s set %s = ? where %s = ?", tableName, paramValueColumnName, paramKeyColumnName);
         int affectedRows = jdbcTemplate.update(sql, newParamValue, String.valueOf(paramKey));
@@ -100,8 +99,8 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
 
     @Override
     public boolean deleteOmnixParam(String key){
-        String tableName = localSourceCacheProperties.getSourceTableName();
-        String paramKeyColumnName = localSourceCacheProperties.getParamKeyColumnName();
+        String tableName = localSourceProperties.getSourceTableName();
+        String paramKeyColumnName = localSourceProperties.getParamKeyColumnName();
 
         String sql = String.format("delete from %s where %s = ?", tableName, paramKeyColumnName);
         int affectedRows = jdbcTemplate.update(sql, key);
@@ -117,19 +116,19 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
 
     @Override
     public List<String> getLocalCacheParamKeys(){
-        String sql = String.format("select %s from %s", localSourceCacheProperties.getParamKeyColumnName(), localSourceCacheProperties.getSourceTableName());
+        String sql = String.format("select %s from %s", localSourceProperties.getParamKeyColumnName(), localSourceProperties.getSourceTableName());
         return jdbcTemplate.queryForList(sql, String.class);
     }
 
     @Override
     public List<String> getLocalCacheParamValues(){
-        String sql = String.format("select %s from %s", localSourceCacheProperties.getParamValueColumnName(), localSourceCacheProperties.getSourceTableName());
+        String sql = String.format("select %s from %s", localSourceProperties.getParamValueColumnName(), localSourceProperties.getSourceTableName());
         return jdbcTemplate.queryForList(sql, String.class);
     }
 
     @Override
     public String getParamValue(Object key){
-        String sql = String.format("select %s from %s where %s = ?", localSourceCacheProperties.getParamValueColumnName(), localSourceCacheProperties.getSourceTableName(), localSourceCacheProperties.getParamKeyColumnName());
+        String sql = String.format("select %s from %s where %s = ?", localSourceProperties.getParamValueColumnName(), localSourceProperties.getSourceTableName(), localSourceProperties.getParamKeyColumnName());
         List<String> paramValueList = jdbcTemplate.queryForList(sql, String.class, String.valueOf(key));
         return paramValueList.stream().findFirst().orElse(null);
     }

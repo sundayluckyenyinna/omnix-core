@@ -9,10 +9,10 @@ import com.accionmfb.omnix.core.instrumentation.CustomHttpInputMessage;
 import com.accionmfb.omnix.core.logger.OmnixHttpLogger;
 import com.accionmfb.omnix.core.payload.EncryptionPayload;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -20,7 +20,6 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -29,9 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @Slf4j
-@AutoConfiguration
-@RestControllerAdvice(basePackages = { "com.accionmfb.omnix" })
 @RequiredArgsConstructor
+@RestControllerAdvice(basePackages = { "com.accionmfb.omnix" })
 public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
 
     private final ObjectMapper objectMapper;
@@ -64,6 +62,8 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
     public Object afterBodyRead(@NonNull Object body, @NonNull HttpInputMessage inputMessage, @NonNull MethodParameter parameter, @NonNull Type targetType, @NonNull Class<? extends HttpMessageConverter<?>> converterType) {
         String requestBody = (String) servletRequest.getAttribute(REQUEST_BODY_KEY);
         Method controllerMethod = parameter.getMethod();
+        String encryptionKey = (String) servletRequest.getAttribute(StringValues.ENC_KEY_PLACEHOLDER);
+        Boolean decryptionRequired = (Boolean) servletRequest.getAttribute(StringValues.APP_USER_REQUIRE_ENCY_KEY);
         if(Objects.nonNull(controllerMethod)) {
             EncryptionPolicyAdvice encryptionPolicyAdvice = controllerMethod.getAnnotation(EncryptionPolicyAdvice.class);
             if(Objects.nonNull(encryptionPolicyAdvice) && !shouldDecryptRequest(encryptionPolicyAdvice.value())){
@@ -71,8 +71,7 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
                 return body;
             }
         }
-        if(encryptionProperties.isEnableEncryption()){
-
+        if(encryptionProperties.isEnableEncryption() && Objects.nonNull(encryptionKey) && decryptionRequired){
            try{
                Class<?> tClazz = body.getClass();
                logger.logHttpApiRequest(requestBody, servletRequest, controllerMethod);
@@ -81,7 +80,7 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
                    log.info("Encrypted Request field has a NULL value: {}", encryptionPayload);
                    return body;
                }else{
-                   String decryptedRequest = encryptionService.decrypt(encryptionPayload.getRequest());
+                   String decryptedRequest = encryptionService.decryptWithKey(encryptionPayload.getRequest(), encryptionKey);
                    log.info("Decrypted Request Body: {}", decryptedRequest);
                    return objectMapper.readValue(decryptedRequest, tClazz);
                }

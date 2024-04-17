@@ -4,16 +4,15 @@ import com.accionmfb.omnix.core.annotation.FallbackParam;
 import com.accionmfb.omnix.core.service.DatasourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
 @Slf4j
 @Configuration
-@AutoConfiguration
+
 @RequiredArgsConstructor
-public class SimpleLocalParamCacheFallback {
+public class SimpleLocalParamFallback {
 
     private final DatasourceService datasourceService;
 

@@ -3,7 +3,6 @@ package com.accionmfb.omnix.core.event.handler;
 import com.accionmfb.omnix.core.event.data.ConfigSourcePropertyChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
@@ -12,7 +11,7 @@ import java.util.Objects;
 
 @Slf4j
 @Configuration
-@AutoConfiguration
+
 @RequiredArgsConstructor
 public class LocalCacheConfigEventHandler {
 

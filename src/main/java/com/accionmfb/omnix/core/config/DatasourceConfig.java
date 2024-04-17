@@ -3,7 +3,6 @@ package com.accionmfb.omnix.core.config;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,7 @@ import javax.sql.DataSource;
 @Data
 @Slf4j
 @Configuration
-@AutoConfiguration
+
 @RequiredArgsConstructor
 @EnableConfigurationProperties(value = DatasourceConfigurationProperties.class)
 public class DatasourceConfig {

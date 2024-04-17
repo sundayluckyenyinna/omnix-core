@@ -6,13 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.reflections.Reflections;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@AutoConfiguration
+
 @RequiredArgsConstructor
 public class UtilityConfig {
 
@@ -31,5 +30,4 @@ public class UtilityConfig {
     public Reflections reflections(){
         return new Reflections("com.accionmfb.omnix");
     }
-
 }

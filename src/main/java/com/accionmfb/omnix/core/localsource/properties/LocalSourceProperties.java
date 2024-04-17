@@ -3,10 +3,12 @@ package com.accionmfb.omnix.core.localsource.properties;
 import com.accionmfb.omnix.core.commons.StringValues;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @Data
+@Validated
 @ConfigurationProperties(prefix = "omnix.source.cache")
-public class LocalSourceCacheProperties {
+public class LocalSourceProperties {
 
     private String sourceTableName = "omnix_generic_param";
     private String paramKeyColumnName = "param_key";
@@ -18,6 +20,7 @@ public class LocalSourceCacheProperties {
     private String database = "test";
     private String databaseId;
     private boolean fetchOnStartup = true;
+    private boolean logOnUpdate = false;
     private String defaultParamValue = StringValues.EMPTY_STRING;
     private String dbServerName;
     private String connectorClass = "io.debezium.connector.mysql.MySqlConnector";

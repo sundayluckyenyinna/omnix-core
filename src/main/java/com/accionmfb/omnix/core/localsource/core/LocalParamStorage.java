@@ -4,7 +4,7 @@ import lombok.NonNull;
 
 import java.util.List;
 
-public interface LocalParamCacheStorage {
+public interface LocalParamStorage {
     List<String> getParamKeys();
 
     List<String> getParamValues();

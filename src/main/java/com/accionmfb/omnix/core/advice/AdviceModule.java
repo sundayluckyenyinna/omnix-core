@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import(value = {
         NoRequestBodyInterceptorRegistry.class, OmnixRequestBodyAdvice.class,
-        OmnixResponseBodyAdvice.class, OmnixResponseBodyAdvice.class
+        OmnixResponseBodyAdvice.class, OmnixResponseBodyAdvice.class, OmnixRestControllerAdvice.class
 })
 public class AdviceModule {
 

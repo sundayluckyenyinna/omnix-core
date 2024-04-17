@@ -15,7 +15,7 @@ public class OmnixApiException  extends RuntimeException {
 
     private String code;
     private String message;
-    private int statusCode;
+    private int statusCode = HttpStatus.OK.value();
     private List<String> errors;
 
     private OmnixApiException(){
