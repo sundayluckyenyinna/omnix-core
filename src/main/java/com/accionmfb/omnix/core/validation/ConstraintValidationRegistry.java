@@ -1,9 +1,6 @@
 package com.accionmfb.omnix.core.validation;
 
-import com.accionmfb.omnix.core.validation.constraints.IsInValidator;
-import com.accionmfb.omnix.core.validation.constraints.ListValidator;
-import com.accionmfb.omnix.core.validation.constraints.NullEmptyValidator;
-import com.accionmfb.omnix.core.validation.constraints.NumberStringValidator;
+import com.accionmfb.omnix.core.validation.constraints.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,5 +26,10 @@ public class ConstraintValidationRegistry {
     @Bean
     public NumberStringValidator numberStringValidator(){
         return new NumberStringValidator();
+    }
+
+    @Bean
+    public OmnixMobileNumberValidator omnixMobileNumberValidator(){
+        return new OmnixMobileNumberValidator();
     }
 }

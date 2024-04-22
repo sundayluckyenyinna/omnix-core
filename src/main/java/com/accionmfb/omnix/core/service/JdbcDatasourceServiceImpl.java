@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Configuration
-
 @RequiredArgsConstructor
 @ConditionalOnBean(value = JdbcTemplate.class)
 public class JdbcDatasourceServiceImpl implements DatasourceService{
@@ -25,6 +24,18 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
     private final JdbcTemplate jdbcTemplate;
     private final ApplicationEventPublisher publisher;
     private final LocalSourceProperties localSourceProperties;
+
+    @Override
+    public Map<String, String> getAllOmnixParams(){
+        String tableName = localSourceProperties.getSourceTableName();
+        String paramKeyColumnName = localSourceProperties.getParamKeyColumnName();
+        String paramValueColumnName = localSourceProperties.getParamValueColumnName();
+        String defaultValue = localSourceProperties.getDefaultParamValue();
+
+        String sql = String.format("select %s, %s from %s", paramKeyColumnName, paramValueColumnName, tableName);
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        return getStringStringMap(defaultValue, maps);
+    }
 
     @Override
     public Map<String, String> getOmnixParams(List<String> requiredParamKeys){
@@ -36,19 +47,23 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
         String inSql = String.join(",", Collections.nCopies(requiredParamKeys.size(), "?"));
         String sql = String.format("select %s, %s from %s where %s in (%s)", paramKeyColumnName, paramValueColumnName, tableName, paramKeyColumnName, inSql);
         List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql, requiredParamKeys.toArray());
+        return getStringStringMap(defaultValue, maps);
+    }
+
+    private Map<String, String> getStringStringMap(String defaultValue, List<Map<String, Object>> maps) {
         List<Map<String, String>> stringMap  = maps.stream().map(map -> {
-           Map<String, String> res = new HashMap<>();
-           for(Map.Entry<String, Object> entry : map.entrySet()){
-               if(Objects.nonNull(entry.getKey())) {
-                   if(Objects.nonNull(entry.getValue())) {
-                       res.put(entry.getKey(), String.valueOf(entry.getValue()));
-                   }
-                   else if(Objects.nonNull(defaultValue)){
-                       res.put(entry.getKey(), defaultValue);
-                   }
-               }
-           }
-           return res;
+            Map<String, String> res = new HashMap<>();
+            for(Map.Entry<String, Object> entry : map.entrySet()){
+                if(Objects.nonNull(entry.getKey())) {
+                    if(Objects.nonNull(entry.getValue())) {
+                        res.put(entry.getKey(), String.valueOf(entry.getValue()));
+                    }
+                    else if(Objects.nonNull(defaultValue)){
+                        res.put(entry.getKey(), defaultValue);
+                    }
+                }
+            }
+            return res;
         }).collect(Collectors.toList());
 
         Map<String, String> paramAndValue = new HashMap<>();
@@ -68,12 +83,15 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
         String paramValueColumnName = localSourceProperties.getParamValueColumnName();
 
         String sql = String.format("insert into %s(%s, %s) values (?, ?)", tableName, paramKeyColumnName, paramValueColumnName);
-        int affectedRows = jdbcTemplate.update(sql, String.valueOf(paramKey), paramValue);
-        if(affectedRows > 0){
-            log.info("New Omnix generic param with name : {} saved successfully", paramKey);
-            publisher.publishEvent(ConfigSourcePropertyChangedEvent.of(this, String.valueOf(paramKey), paramValue, ConfigSourceOperation.SAVE));
-            return true;
-        }else{
+        try {
+            int affectedRows = jdbcTemplate.update(sql, String.valueOf(paramKey), paramValue);
+            if (affectedRows > 0) {
+                log.info("New Omnix generic param with name : {} saved successfully", paramKey);
+                publisher.publishEvent(ConfigSourcePropertyChangedEvent.of(this, String.valueOf(paramKey), paramValue, ConfigSourceOperation.SAVE));
+                return true;
+            }
+            return false;
+        }catch(Exception ex){
             log.warn("Could not execute save operation for save new omnix generic param with key: {}", paramKey);
             return false;
         }
@@ -92,7 +110,7 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
             publisher.publishEvent(ConfigSourcePropertyChangedEvent.of(this, String.valueOf(paramKey), newParamValue, ConfigSourceOperation.UPDATE));
             return true;
         }else{
-            log.warn("Could not execute save operation for update omnix generic param with key: {}", paramKey);
+            log.warn("Could not execute update operation for update omnix generic param with key: {}", paramKey);
             return false;
         }
     }

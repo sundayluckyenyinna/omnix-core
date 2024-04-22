@@ -26,10 +26,9 @@ public class StringSetConverter implements AttributeConverter<Set<String>, Strin
 
     @Override
     public Set<String> convertToEntityAttribute(String s) {
-        if(Objects.nonNull(s)) {
-            s = s.replaceAll("\\[", "[").replaceAll("]", Strings.EMPTY);
-            return !s.trim().isEmpty() ? new HashSet<>(Arrays.asList(s.split(StringValues.COMMA))) : new HashSet<>();
-        }
-        return new HashSet<>();
+        s = s.replaceAll("\\[", "").replace("[", "");
+        s = s.replaceAll("]", "");
+        s = s.replaceAll(",,", "");
+        return new HashSet<>(List.of(s.split(",")));
     }
 }

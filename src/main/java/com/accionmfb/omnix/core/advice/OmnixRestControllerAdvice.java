@@ -1,6 +1,6 @@
 package com.accionmfb.omnix.core.advice;
 
-import com.accionmfb.omnix.core.commons.ResponseCodes;
+import com.accionmfb.omnix.core.commons.ResponseCode;
 import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.encryption.EncryptionProperties;
 import com.accionmfb.omnix.core.encryption.manager.OmnixEncryptionService;
@@ -59,7 +59,7 @@ public class OmnixRestControllerAdvice {
         List<ObjectError> objectErrors = exception.getBindingResult().getAllErrors();
         List<String> errors = objectErrors.stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
-        apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
+        apiBaseResponse.setResponseCode(ResponseCode.FAILED_MODEL);
         apiBaseResponse.setResponseMessage(String.join(StringValues.COMMA, errors));
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
         writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletRequest, servletResponse);
@@ -69,7 +69,7 @@ public class OmnixRestControllerAdvice {
     public void onConstraintViolationException(ConstraintViolationException exception, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
         List<String> errors = exception.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(Collectors.toList());
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
-        apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
+        apiBaseResponse.setResponseCode(ResponseCode.FAILED_MODEL);
         apiBaseResponse.setResponseMessage(String.join(StringValues.COMMA, errors));
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
         writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletRequest, servletResponse);
@@ -78,7 +78,7 @@ public class OmnixRestControllerAdvice {
     @ExceptionHandler(value = ValidationException.class)
     public void onValidationException(ValidationException exception, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
-        apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
+        apiBaseResponse.setResponseCode(ResponseCode.FAILED_MODEL);
         apiBaseResponse.setResponseMessage(exception.getMessage());
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
         writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletRequest, servletResponse);
@@ -87,7 +87,7 @@ public class OmnixRestControllerAdvice {
     @ExceptionHandler(value = ResponseStatusException.class)
     public void onResponseStatusException(ResponseStatusException exception, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
-        apiBaseResponse.setResponseCode(ResponseCodes.HTTP_ERROR.getResponseCode());
+        apiBaseResponse.setResponseCode(ResponseCode.HTTP_ERROR);
         apiBaseResponse.setResponseMessage(exception.getMessage());
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
         writeResponseToClient(apiBaseResponse, exception.getStatus().value(), servletRequest, servletResponse);
@@ -96,7 +96,7 @@ public class OmnixRestControllerAdvice {
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     public void onMissingServletRequestParameterException(MissingServletRequestParameterException exception, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
-        apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
+        apiBaseResponse.setResponseCode(ResponseCode.FAILED_MODEL);
         apiBaseResponse.setResponseMessage(exception.getMessage());
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
         writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletRequest, servletResponse);
@@ -105,7 +105,7 @@ public class OmnixRestControllerAdvice {
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public void onHttpMessageNotReadableException(HttpMessageNotReadableException exception, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
-        apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
+        apiBaseResponse.setResponseCode(ResponseCode.FAILED_MODEL);
         apiBaseResponse.setResponseMessage(exception.getMessage());
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
         writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletRequest, servletResponse);
@@ -114,7 +114,7 @@ public class OmnixRestControllerAdvice {
     @ExceptionHandler(value = RuntimeException.class)
     public void onGenericRuntimeException(RuntimeException exception, HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws Exception {
         ApiBaseResponse apiBaseResponse = new ApiBaseResponse();
-        apiBaseResponse.setResponseCode(ResponseCodes.FAILED_MODEL.getResponseCode());
+        apiBaseResponse.setResponseCode(ResponseCode.FAILED_MODEL);
         apiBaseResponse.setResponseMessage(exception.getMessage());
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
         writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletRequest, servletResponse);
@@ -125,6 +125,11 @@ public class OmnixRestControllerAdvice {
         servletResponse.setStatus(statusCode);
         servletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
         servletResponse.setHeader("X-FORWARDED-FOR", "ACCION-MICROFINANCE-BANK");
+        servletResponse.setHeader("Access-Control-Allow-Origin", "*");
+        servletResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        servletResponse.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        servletResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        servletResponse.setHeader("Access-Control-Max-Age", "31536000");
         String responseJson = objectMapper.writeValueAsString(payload);
 
         String encryptionKey = (String) servletRequest.getAttribute(StringValues.ENC_KEY_PLACEHOLDER);

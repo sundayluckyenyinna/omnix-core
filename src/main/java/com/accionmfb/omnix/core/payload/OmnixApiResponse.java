@@ -1,6 +1,6 @@
 package com.accionmfb.omnix.core.payload;
 
-import com.accionmfb.omnix.core.commons.ResponseCodes;
+import com.accionmfb.omnix.core.commons.ResponseCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +10,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -65,7 +64,7 @@ public class OmnixApiResponse<T>{
     }
 
     public OmnixApiResponse<T> ofSuccess(T responseData){
-        setResponseCode(ResponseCodes.SUCCESS_CODE.getResponseCode());
+        setResponseCode(ResponseCode.SUCCESS);
         setResponseMessage("Successful operation");
         setResponseData(responseData);
         return this;

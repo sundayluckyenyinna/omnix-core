@@ -1,6 +1,6 @@
 package com.accionmfb.omnix.core.exception;
 
-import com.accionmfb.omnix.core.commons.ResponseCodes;
+import com.accionmfb.omnix.core.commons.ResponseCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
@@ -24,7 +24,7 @@ public class OmnixApiException  extends RuntimeException {
 
     private OmnixApiException(String message){
         super(message);
-        this.code = ResponseCodes.INTERNAL_SERVER_ERROR.getResponseCode();
+        this.code = ResponseCode.INTERNAL_SERVER_ERROR;
         this.message = message;
         this.statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
         this.errors = new ArrayList<>();

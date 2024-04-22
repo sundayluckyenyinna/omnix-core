@@ -14,14 +14,18 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 
 @Component
-
 @RequiredArgsConstructor
 public class CommonUtil {
 
     private final MessageSource messageSource;
     private final static String ALPHABETS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private final static String NIGERIAN_PHONE_PREFIX_CODE = "234";
+    private final static String NIGERIAN_PHONE_PREFIX_POSITIVE_CODE = "+234";
+    private final static String NIGERIAN_PHONE_PREFIX_POSITIVE_CODE_ESC = "\\+234";
+    private final static String NIGERIAN_MOBILE_PREFIX_NO_CODE = "0";
 
     public static LocalDateTime getCurrentDateTime(){
         return LocalDateTime.now(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE));
@@ -130,6 +134,36 @@ public class CommonUtil {
         return builder.toString();
     }
 
+    public static String formatToOmnixNigerianMobileNumber(String phoneNumber){
+        if(Objects.isNull(phoneNumber)){
+            return null;
+        }
+        phoneNumber = phoneNumber.trim();
+        if(phoneNumber.length() >= 13){
+            String escapedReplacement = Matcher.quoteReplacement(NIGERIAN_MOBILE_PREFIX_NO_CODE);
+            if(phoneNumber.startsWith(NIGERIAN_PHONE_PREFIX_POSITIVE_CODE)){
+                return phoneNumber.replaceFirst(NIGERIAN_PHONE_PREFIX_POSITIVE_CODE_ESC, escapedReplacement);
+            }
+            if(phoneNumber.startsWith(NIGERIAN_PHONE_PREFIX_CODE)){
+                return phoneNumber.replaceFirst(NIGERIAN_PHONE_PREFIX_CODE, escapedReplacement);
+            }
+        }
+        return phoneNumber;
+    }
+
+    public static String resolveTelcoFromMobileNumber(String mobileNumber){
+        return null;
+    }
+
+    //--------------------------------------- List Utils -------------------------------//
+    public static <T> List<T> merge(List<T> first, List<T> second){
+        List<T> combined = new ArrayList<>();
+        combined.addAll(first);
+        combined.addAll(second);
+        return combined;
+    }
+
+    // -------------------------------- Message source util ---------------------------//
     public String getMessage(String key){
         try {
             return messageSource.getMessage(key, new Object[]{}, Locale.ENGLISH);
@@ -145,4 +179,5 @@ public class CommonUtil {
             return  key;
         }
     }
+
 }

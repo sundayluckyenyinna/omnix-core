@@ -1,8 +1,9 @@
 package com.accionmfb.omnix.core.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE_USE })
 public @interface RequiredOmnixParam {
 }

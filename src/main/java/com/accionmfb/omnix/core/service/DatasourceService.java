@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface DatasourceService {
+    Map<String, String> getAllOmnixParams();
+
     Map<String, String> getOmnixParams(List<String> requiredParamKeys);
 
     <T> boolean saveOmnixParams(T paramKey, String paramValue);

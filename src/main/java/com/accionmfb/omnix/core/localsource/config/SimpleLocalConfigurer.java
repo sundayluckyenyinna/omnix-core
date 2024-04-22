@@ -1,6 +1,5 @@
 package com.accionmfb.omnix.core.localsource.config;
 
-import com.accionmfb.omnix.core.annotation.RequiredOmnixParam;
 import com.accionmfb.omnix.core.commons.ConfigSourceOperation;
 import com.accionmfb.omnix.core.commons.SMART_PRINT_FORMAT;
 import com.accionmfb.omnix.core.commons.StringValues;
@@ -9,7 +8,6 @@ import com.accionmfb.omnix.core.event.data.ConfigSourcePropertyChangedEvent;
 import com.accionmfb.omnix.core.localsource.properties.LocalSourceProperties;
 import com.accionmfb.omnix.core.registry.LocalSourceCacheRegistry;
 import com.accionmfb.omnix.core.service.DatasourceService;
-import com.accionmfb.omnix.core.util.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.debezium.engine.ChangeEvent;
@@ -17,13 +15,13 @@ import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.format.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.reflections.Reflections;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -39,28 +37,20 @@ import static com.accionmfb.omnix.core.util.OmnixCoreApplicationUtil.returnOrdef
 @EnableConfigurationProperties(value = { LocalSourceProperties.class, DatasourceConfigurationProperties.class })
 public class SimpleLocalConfigurer {
 
-    private final Reflections reflections;
     private final ObjectMapper objectMapper;
     private final DatasourceService datasourceService;
     private final ApplicationEventPublisher eventPublisher;
     private final LocalSourceProperties localSourceProperties;
     private final DatasourceConfigurationProperties datasourceProperties;
 
-
     @Bean
     public String initParamSourceConfigurationFromDatabase(){
-        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(RequiredOmnixParam.class);
         if(localSourceProperties.isFetchOnStartup()) {
-            for (Class<?> clazz : classes) {
-                if (clazz.isEnum()) {
-                    List<String> params = getEnumeratedParams(clazz);
-                    CommonUtil.runIf(!params.isEmpty(), ()->{
-                        Map<String, String> paramsMap = datasourceService.getOmnixParams(params);
-                        LocalSourceCacheRegistry.setAllSource(paramsMap);
-                        LocalSourceCacheRegistry.setConfigKeys(params);
-                    });
-                }
-            }
+            Map<String, String> paramsMap = datasourceService.getAllOmnixParams();
+            System.out.println("Before setting source: " + LocalSourceCacheRegistry.getConfigurationMap());
+            LocalSourceCacheRegistry.setAllSource(paramsMap);
+            System.out.println("After setting source: " + LocalSourceCacheRegistry.getConfigurationMap());
+            LocalSourceCacheRegistry.setConfigKeys(new ArrayList<>(paramsMap.keySet()));
             log.info("Omnix Params registered to local cache successfully");
             LocalSourceCacheRegistry.setConfigKeys(LocalSourceCacheRegistry.getKeys());
             if(localSourceProperties.isEnableVerboseLogging()){
@@ -69,7 +59,6 @@ public class SimpleLocalConfigurer {
         }
         return "Success";
     }
-
 
     @EventListener(value = ApplicationStartedEvent.class)
     public void initDebeziumDataSourceChangeDataCapture(){
@@ -104,7 +93,7 @@ public class SimpleLocalConfigurer {
     }
 
 
-    private List<String> getEnumeratedParams(Class<?> enumClass){
+    public static List<String> getEnumeratedParams(Class<?> enumClass){
         return Arrays.stream(enumClass.getDeclaredFields())
                 .filter(Objects::nonNull)
                 .map(Field::getName)
@@ -112,7 +101,7 @@ public class SimpleLocalConfigurer {
                 .collect(Collectors.toList());
     }
 
-    private SMART_PRINT_FORMAT getCacheLogFormat(String formatStr){
+    public static SMART_PRINT_FORMAT getCacheLogFormat(String formatStr){
         try {
             return SMART_PRINT_FORMAT.valueOf(formatStr.toUpperCase());
         }catch (Exception exception){

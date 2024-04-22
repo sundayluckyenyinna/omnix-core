@@ -54,6 +54,7 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
             log.error("Exception occurred while trying to get request body from InputStream");
             requestBody = StringValues.EMPTY_STRING;
         }
+        log.info("Before body is read: ======================> " + requestBody);
         servletRequest.setAttribute(REQUEST_BODY_KEY, requestBody);
         return new CustomHttpInputMessage(new ByteArrayInputStream(requestBody.getBytes(StandardCharsets.UTF_8)), inputMessage.getHeaders());
     }
