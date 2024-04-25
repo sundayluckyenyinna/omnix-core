@@ -2,6 +2,7 @@ package com.accionmfb.omnix.core.localsource.core.impl;
 
 import com.accionmfb.omnix.core.annotation.FallbackAdvice;
 import com.accionmfb.omnix.core.annotation.FallbackHandler;
+import com.accionmfb.omnix.core.annotation.RelaxAspectLogOperation;
 import com.accionmfb.omnix.core.localsource.core.LocalParamStorage;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Slf4j
 @Primary
+@RelaxAspectLogOperation
 @RequiredArgsConstructor
 @FallbackAdvice(value = SimpleLocalParamFallback.class)
 public class DatasourceLocalParam implements LocalParamStorage {

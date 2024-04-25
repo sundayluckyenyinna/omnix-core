@@ -14,7 +14,7 @@ import java.util.Map;
 public class FileUtilities {
 
     private static final TemplateEngine TEMPLATE_ENGINE = new SpringTemplateEngine();
-    private static final String DEFAULT_THYMELEAF_PREFIX_PLACEHOLDER = "\\[[{";
+    private static final String DEFAULT_THYMELEAF_PREFIX_PLACEHOLDER = "[[${";
     private static final String DEFAULT_THYMELEAF_SUFFIX_PLACEHOLDER = "}]]";
 
     public static String downloadOuterHtmlFromHtmlLink(String htmlLink){
@@ -59,7 +59,7 @@ public class FileUtilities {
             String key = entry.getKey();
             Object value = entry.getValue();
             String replaceAble = DEFAULT_THYMELEAF_PREFIX_PLACEHOLDER.concat(key).concat(DEFAULT_THYMELEAF_SUFFIX_PLACEHOLDER);
-            result = result.replaceAll(replaceAble, String.valueOf(value));
+            result = result.replace(replaceAble, String.valueOf(value));
         }
         return result;
     }

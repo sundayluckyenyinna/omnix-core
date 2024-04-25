@@ -9,7 +9,6 @@ import com.accionmfb.omnix.core.event.EventModule;
 import com.accionmfb.omnix.core.jwt.JwtModule;
 import com.accionmfb.omnix.core.localsource.LocalSourceModule;
 import com.accionmfb.omnix.core.logger.LoggerModule;
-import com.accionmfb.omnix.core.logger.OmnixHttpLogger;
 import com.accionmfb.omnix.core.service.ServiceModule;
 import com.accionmfb.omnix.core.util.UtilModule;
 import com.accionmfb.omnix.core.validation.ValidationModule;
