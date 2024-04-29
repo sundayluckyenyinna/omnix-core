@@ -1,12 +1,15 @@
 package com.accionmfb.omnix.core.jwt;
 
 import com.accionmfb.omnix.core.commons.OmnixParam;
+import com.accionmfb.omnix.core.commons.ResponseCode;
 import com.accionmfb.omnix.core.commons.StringValues;
+import com.accionmfb.omnix.core.exception.OmnixApiException;
 import com.accionmfb.omnix.core.jwt.props.DefaultJwtProperties;
 import com.accionmfb.omnix.core.localsource.core.LocalParamStorage;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -109,12 +112,18 @@ public class JwtTokenUtility implements JwtTokenUtil{
 
     @Override
     public boolean isExpiredToken(String token){
-        Date expiration = Jwts.parser()
-                .setSigningKey(defaultJwtProperties.getJwtKey())
-                .parseClaimsJws(cleanToken(token))
-                .getBody()
-                .getExpiration();
-        return Objects.nonNull(expiration) && expiration.before(Date.from(Instant.now()));
+        try {
+            Date expiration = Jwts.parser()
+                    .setSigningKey(defaultJwtProperties.getJwtKey())
+                    .parseClaimsJws(cleanToken(token))
+                    .getBody()
+                    .getExpiration();
+            return Objects.nonNull(expiration) && expiration.before(Date.from(Instant.now()));
+        }catch (ExpiredJwtException exception){
+            throw OmnixApiException.newInstance()
+                    .withCode(ResponseCode.INVALID_CREDENTIALS)
+                    .withMessage("Bearer token expired");
+        }
     }
 
     @Override
@@ -139,9 +148,14 @@ public class JwtTokenUtility implements JwtTokenUtil{
             });
             String value = credentialMap.get(claimKey);
             return Objects.isNull(value) ? null : value;
-        }catch (Exception exception){
+        }catch (ExpiredJwtException exception){
+            throw OmnixApiException.newInstance()
+                    .withCode(ResponseCode.INVALID_CREDENTIALS)
+                    .withMessage("Expired credentials");
+        }
+        catch (Exception exception){
             log.error("Exception occurred while trying to extract claim from JWT. Exception message is: {}", exception.getMessage());
-            return null;
+           return null;
         }
     }
 
@@ -161,15 +175,16 @@ public class JwtTokenUtility implements JwtTokenUtil{
     }
 
     private Claims generateAdminUserClaims(String emailAddress, String channel){
-        return buildClaims(emailAddress, channel, ADMIN_USER_TOKEN, TokenType.APP_USER_TOKEN);
+        return buildClaims(emailAddress, channel, ADMIN_USER_TOKEN, TokenType.ADMIN_USER_TOKEN);
     }
 
     private Claims buildClaims(String keyValue, String channel, String subject, TokenType tokenType) {
+        log.info("Login token type: ==================================================>{}", tokenType);
         String base64Credentials;
         switch (tokenType){
             case APP_USER_TOKEN : { base64Credentials = buildAppUserBase64EncodedJwtCredentials(keyValue, channel); break; }
-            case ADMIN_USER_TOKEN : { base64Credentials = buildAdminUserSessionBase64EncodedJwtCredentials(keyValue, channel); break;}
-            case USER_SESSION_TOKEN: { base64Credentials = buildUserSessionBase64EncodedJwtCredentials(keyValue, channel); }
+            case ADMIN_USER_TOKEN : { base64Credentials = buildAdminUserSessionBase64EncodedJwtCredentials(keyValue, channel); break; }
+            case USER_SESSION_TOKEN: { base64Credentials = buildUserSessionBase64EncodedJwtCredentials(keyValue, channel); break; }
             default : {
                 throw new IllegalArgumentException("Invalid token type");
             }

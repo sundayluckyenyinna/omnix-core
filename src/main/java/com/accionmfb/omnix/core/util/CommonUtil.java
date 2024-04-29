@@ -151,6 +151,16 @@ public class CommonUtil {
         return phoneNumber;
     }
 
+    public static String formatMobileWithNigerianCode(String mobile){
+        String formattedMobile;
+        if(mobile.startsWith(NIGERIAN_PHONE_PREFIX_CODE)){
+            formattedMobile = mobile.trim();
+        }else{
+            formattedMobile = NIGERIAN_PHONE_PREFIX_CODE.concat(mobile.substring(1)).trim();
+        }
+        return formattedMobile;
+    }
+
     public static String resolveTelcoFromMobileNumber(String mobileNumber){
         return null;
     }
