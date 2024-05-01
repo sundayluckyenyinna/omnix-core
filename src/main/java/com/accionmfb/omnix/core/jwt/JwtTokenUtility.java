@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -122,6 +123,7 @@ public class JwtTokenUtility implements JwtTokenUtil{
         }catch (ExpiredJwtException exception){
             throw OmnixApiException.newInstance()
                     .withCode(ResponseCode.INVALID_CREDENTIALS)
+                    .withStatusCode(HttpStatus.UNAUTHORIZED.value())
                     .withMessage("Bearer token expired");
         }
     }

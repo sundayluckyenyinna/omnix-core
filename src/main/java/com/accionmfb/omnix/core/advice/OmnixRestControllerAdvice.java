@@ -35,9 +35,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RestControllerAdvice
 @RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@RestControllerAdvice(basePackages = "com.accionmfb.omnix")
 public class OmnixRestControllerAdvice {
 
     private final OmnixHttpLogger logger;
