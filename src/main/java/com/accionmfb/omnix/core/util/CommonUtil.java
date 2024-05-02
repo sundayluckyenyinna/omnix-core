@@ -27,6 +27,28 @@ public class CommonUtil {
     private final static String NIGERIAN_PHONE_PREFIX_POSITIVE_CODE_ESC = "\\+234";
     private final static String NIGERIAN_MOBILE_PREFIX_NO_CODE = "0";
 
+    private final static List<String> MTN_PREFIX = List.of(
+            "0803", "0816", "0903", "0810",
+            "0806", "0703", "0706", "0813",
+            "0814", "0906"
+    );
+
+    private final static List<String> AIRTEL_PREFIX = List.of(
+            "0907", "0708", "0802", "0902",
+            "0812", "0808", "0701"
+    );
+
+    private final static List<String> GLO_PREFIX = List.of(
+            "0805", "0905", "0807", "0811",
+            "0705", "0815"
+    );
+
+    private final static List<String> NINE_MOBILE_PREFIX = List.of(
+            "0909", "0908", "0818", "0809",
+            "0817"
+    );
+
+
     public static LocalDateTime getCurrentDateTime(){
         return LocalDateTime.now(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE));
     }
@@ -162,7 +184,22 @@ public class CommonUtil {
     }
 
     public static String resolveTelcoFromMobileNumber(String mobileNumber){
-        return null;
+        String formattedMobile = formatToOmnixNigerianMobileNumber(mobileNumber);
+        assert formattedMobile != null;
+        String prefix = formattedMobile.substring(0, 4);
+        if(MTN_PREFIX.contains(prefix)){
+            return "MTN";
+        }
+        if(AIRTEL_PREFIX.contains(prefix)){
+            return "AIRTEL";
+        }
+        if(GLO_PREFIX.contains(prefix)){
+            return "GLO";
+        }
+        if(NINE_MOBILE_PREFIX.contains(prefix)){
+            return "NINE_MOBILE";
+        }
+        return "UNKNOWN";
     }
 
     //--------------------------------------- List Utils -------------------------------//
@@ -189,5 +226,4 @@ public class CommonUtil {
             return  key;
         }
     }
-
 }
