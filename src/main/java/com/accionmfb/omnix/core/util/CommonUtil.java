@@ -1,6 +1,10 @@
 package com.accionmfb.omnix.core.util;
 
 import com.accionmfb.omnix.core.commons.StringValues;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
@@ -20,6 +24,7 @@ import java.util.regex.Matcher;
 @RequiredArgsConstructor
 public class CommonUtil {
 
+    private final static ObjectMapper C_OBJECT_MAPPER = new ObjectMapper();
     private final MessageSource messageSource;
     private final static String ALPHABETS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private final static String NIGERIAN_PHONE_PREFIX_CODE = "234";
@@ -48,9 +53,12 @@ public class CommonUtil {
             "0817"
     );
 
+    public static ZoneId getLagosZoneId(){
+        return ZoneId.of(StringValues.AFRICA_LAGOS_ZONE);
+    }
 
     public static LocalDateTime getCurrentDateTime(){
-        return LocalDateTime.now(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE));
+        return LocalDateTime.now(getLagosZoneId());
     }
 
     public static LocalDate getCurrentLocalDate(){
@@ -200,6 +208,17 @@ public class CommonUtil {
             return "NINE_MOBILE";
         }
         return "UNKNOWN";
+    }
+
+    public static String prettyPrint(Object object){
+        try {
+            C_OBJECT_MAPPER.registerModule(new JavaTimeModule());
+            C_OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+            C_OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            C_OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            return C_OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        }catch (Exception ignored){}
+        return StringValues.EMPTY_STRING;
     }
 
     //--------------------------------------- List Utils -------------------------------//

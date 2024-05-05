@@ -15,7 +15,7 @@ public class OmnixPage<T> {
     public static <T> OmnixPage<T> from(Page<T> page){
         List<T> content = page.getContent();
         PaginationMeta paginationMeta = new PaginationMeta();
-        paginationMeta.setPageNumber(page.getPageable().getPageNumber());
+        paginationMeta.setPageNumber(page.getPageable().getPageNumber() + 1);
         paginationMeta.setPageSize(page.getPageable().getPageSize());
         paginationMeta.setPageCount(content.size());
         paginationMeta.setTotalCount(page.getTotalElements());
