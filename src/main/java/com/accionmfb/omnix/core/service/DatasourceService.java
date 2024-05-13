@@ -25,4 +25,10 @@ public interface DatasourceService {
     String getParamValueOrDefault(Object paramKey, String defaultValue, boolean createIfExist);
 
     String getParamValueOrDefault(Object paramKey, String defaultValue);
+
+    boolean saveIdTokenUnawareEndpoint(String endpoint, String msName);
+
+    boolean deleteIdTokenUnawareEndpoint(String endpoint);
+
+    boolean hasEndpoint(String endpoint);
 }

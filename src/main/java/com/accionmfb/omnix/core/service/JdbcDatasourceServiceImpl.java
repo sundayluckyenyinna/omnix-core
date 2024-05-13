@@ -1,8 +1,10 @@
 package com.accionmfb.omnix.core.service;
 
 import com.accionmfb.omnix.core.commons.ConfigSourceOperation;
+import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.event.data.ConfigSourcePropertyChangedEvent;
 import com.accionmfb.omnix.core.localsource.properties.LocalSourceProperties;
+import com.accionmfb.omnix.core.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -84,6 +86,7 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
 
         String sql = String.format("insert into %s(%s, %s) values (?, ?)", tableName, paramKeyColumnName, paramValueColumnName);
         try {
+            String now = CommonUtil.getCurrentDateTime().toString();
             int affectedRows = jdbcTemplate.update(sql, String.valueOf(paramKey), paramValue);
             if (affectedRows > 0) {
                 log.info("New Omnix generic param with name : {} saved successfully", paramKey);
@@ -169,5 +172,27 @@ public class JdbcDatasourceServiceImpl implements DatasourceService{
     @Override
     public String getParamValueOrDefault(Object paramKey, String defaultValue){
         return getParamValueOrDefault(paramKey, defaultValue, true);
+    }
+
+    @Override
+    public boolean saveIdTokenUnawareEndpoint(String endpoint, String msName){
+        String sql = "insert into id_token_unaware_endpoint(created_at, updated_at, endpoint, micro_service_name) values('%s', '%s', '%s', '%s')";
+        String now = CommonUtil.getCurrentDateTime().toString();
+        sql = String.format(sql, now, now, endpoint, msName);
+        return jdbcTemplate.update(sql) > 0;
+    }
+
+    @Override
+    public boolean deleteIdTokenUnawareEndpoint(String endpoint){
+        String sql = "delete from id_token_unaware_endpoint where endpoint = '%s'";
+        sql = String.format(sql, endpoint);
+        return jdbcTemplate.update(sql) > 0;
+    }
+
+    @Override
+    public boolean hasEndpoint(String endpoint){
+        String sql = "select * from id_token_unaware_endpoint where endpoint = '%s'";
+        sql = String.format(sql, endpoint);
+        return !jdbcTemplate.queryForList(sql).isEmpty();
     }
 }

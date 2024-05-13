@@ -4,6 +4,7 @@ import com.accionmfb.omnix.core.annotation.HttpLoggingAdvice;
 import com.accionmfb.omnix.core.commons.LogPolicy;
 import com.accionmfb.omnix.core.commons.LogStyle;
 import com.accionmfb.omnix.core.commons.StringValues;
+import com.accionmfb.omnix.core.util.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ public class OmnixHttpLogger implements Loggable{
             System.out.println();
             log.info("=============================================  HTTP REQUEST START ======================================================");
             log.info("Request URI: {} {}", servletRequest.getMethod(), servletRequest.getRequestURI());
+            log.info("Remote IP: {}", CommonUtil.returnOrDefault(servletRequest.getHeader("X-FORWARDED-FOR"), servletRequest.getRemoteAddr()));
             log.info("Request SessionId: {}", servletRequest.getRequestedSessionId());
             writeBodyByLogStyle(requestBody);
             log.info("Request Headers: {}", getHeadersFromServletRequest(servletRequest));

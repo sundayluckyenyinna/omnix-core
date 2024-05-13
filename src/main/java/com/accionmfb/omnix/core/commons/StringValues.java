@@ -44,9 +44,12 @@ public interface StringValues {
     String APP_USER_KEY = "appUser";
     String ENC_KEY_PLACEHOLDER = "encKey";
     String APP_USER_REQUIRE_ENCY_KEY = "ENC_REQUIRED";
+    String REQUEST_BODY_KEY = "REQUEST_BODY";
     String AUTH_KEY_BEARER_PREFIX = "Bearer ";
     String AUTH_HEADER_KEY = "Authorization";
     String ID_TOKEN_KEY = "idToken";
+    String SINGLE_QUOTE = "\"";
+    String TAB = "\t";
 
 
     // Patterns
