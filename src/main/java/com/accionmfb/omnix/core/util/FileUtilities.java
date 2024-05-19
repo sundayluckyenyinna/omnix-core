@@ -1,13 +1,18 @@
 package com.accionmfb.omnix.core.util;
 
+import com.accionmfb.omnix.core.commons.StringValues;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Slf4j
@@ -16,7 +21,11 @@ public class FileUtilities {
     private static final TemplateEngine TEMPLATE_ENGINE = new SpringTemplateEngine();
     private static final String DEFAULT_THYMELEAF_PREFIX_PLACEHOLDER = "[[${";
     private static final String DEFAULT_THYMELEAF_SUFFIX_PLACEHOLDER = "}]]";
+    private static final String SIMPLE_CONTEXT_START_TAG = "\\{";
+    private static final String SIMPLE_CONTEXT_END_TAG = "}";
 
+
+    // ------------------------ Streaming ------------------//
     public static String downloadOuterHtmlFromHtmlLink(String htmlLink){
         try {
             Document document = Jsoup.connect(htmlLink).parser(Parser.htmlParser()).get();
@@ -38,6 +47,44 @@ public class FileUtilities {
         }
     }
 
+    public static String downloadOuterHmlFromInputStream(InputStream htmlStream, Parser parser){
+        try{
+            return Jsoup.parse(htmlStream, StandardCharsets.UTF_8.toString(), StringValues.EMPTY_STRING, parser).outerHtml();
+        }catch (Exception exception){
+            log.error("Could not download {} from stream.", parser.toString());
+            log.info("Exception message is: {}", exception.getMessage());
+            return null;
+        }
+    }
+
+    public static String downloadOuterHmlFromInputStream(InputStream htmlStream){
+        try{
+            return Jsoup.parse(htmlStream, StandardCharsets.UTF_8.toString(), StringValues.EMPTY_STRING, Parser.htmlParser()).outerHtml();
+        }catch (Exception exception){
+            log.error("Could not download html from stream.");
+            log.info("Exception message is: {}", exception.getMessage());
+            return null;
+        }
+    }
+
+    public static String downloadOuterHtmlFromResource(String resourcePath, Parser parser){
+        try {
+            Resource resource = new ClassPathResource(resourcePath);
+            return downloadOuterHmlFromInputStream(resource.getInputStream(), parser);
+        }catch (Exception exception){
+            return null;
+        }
+    }
+
+    public static String downloadOuterHtmlFromResource(String resourcePath){
+        try{
+            return downloadOuterHtmlFromResource(resourcePath, Parser.htmlParser());
+        }catch (Exception exception){
+            return null;
+        }
+    }
+
+    // ---------------------- Formatting ------------------ //
     public static String formatHtmlWithContextToPlain(String outerHtml, Map<String, Object> model){
         Context context = new Context();
         model.forEach(context::setVariable);
@@ -73,5 +120,34 @@ public class FileUtilities {
                 .formattedHtml(formattedHml)
                 .plainMessage(plainMessage)
                 .build();
+    }
+
+    public static String formatHtmlLinkWithSimpleContextBinder(String htmlOuterHtml, Map<String, Object> context){
+        String parsedOuterHtml = htmlOuterHtml;
+        for(Map.Entry<String, Object> entry: context.entrySet()){
+            String replaceable = SIMPLE_CONTEXT_START_TAG.concat(entry.getKey()).concat(SIMPLE_CONTEXT_END_TAG);
+            parsedOuterHtml = parsedOuterHtml.replaceAll(replaceable, String.valueOf(entry.getValue()));
+        }
+        return parsedOuterHtml;
+    }
+
+
+    // ------------- Advanced combination --------- //
+    public static String downloadAndFormatOuterHtmlFromResource(String resourcePath, Parser parser, Map<String, Object> context){
+        try{
+            String htmlString = downloadOuterHtmlFromResource(resourcePath, parser);
+            return formatHtmlLinkWithSimpleContextBinder(htmlString, context);
+        }catch (Exception exception){
+            return null;
+        }
+    }
+
+    public static String downloadAndFormatOuterHtmlFromResource(String resourcePath, Map<String, Object> context){
+        try{
+            String htmlString = downloadOuterHtmlFromResource(resourcePath);
+            return formatHtmlLinkWithSimpleContextBinder(htmlString, context);
+        }catch (Exception exception){
+            return null;
+        }
     }
 }

@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -44,7 +46,9 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
             try{
                 String encryptionKey = requestTemplate.headers().get(StringValues.ENC_KEY_PLACEHOLDER)
                         .stream().findFirst().orElse(null);
-                if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey)){
+                Collection<String> headerValues  = requestTemplate.headers().get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
+                boolean encryptionRequired = Objects.isNull(headerValues) || headerValues.isEmpty() || headerValues.stream().anyMatch(value -> value.equalsIgnoreCase("true"));
+                if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey) && encryptionRequired){
                     String encryptedRequest = encryptionService.encryptWithKey(rawRequestBodyJson, encryptionKey);
                     EncryptionPayload payload = EncryptionPayload.withRequest(encryptedRequest);
                     String payloadJson = objectMapper.writeValueAsString(payload);
@@ -67,10 +71,10 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
         byte[] bodyStream = response.body().asInputStream().readAllBytes();
         String responseBody = new String(bodyStream);
         String encryptionKey = response.request().headers().get(StringValues.ENC_KEY_PLACEHOLDER)
-                .stream()
-                .findFirst()
-                .orElse(null);
-        if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey)){
+                .stream().findFirst().orElse(null);
+        Collection<String> headerValues  = response.request().headers().get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
+        boolean encryptionRequired = Objects.isNull(headerValues) || headerValues.isEmpty() || headerValues.stream().anyMatch(value -> value.equalsIgnoreCase("true"));
+        if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey) && encryptionRequired){
             EncryptionPayload encryptionPayload = objectMapper.readValue(responseBody, EncryptionPayload.class);
             String encryptedResponse = encryptionPayload.getResponse();
             String decryptedResponseBody = encryptionService.decryptWithKey(encryptedResponse, encryptionKey);

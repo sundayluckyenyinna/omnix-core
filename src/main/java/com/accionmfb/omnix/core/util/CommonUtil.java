@@ -178,7 +178,7 @@ public class CommonUtil {
                 return phoneNumber.replaceFirst(NIGERIAN_PHONE_PREFIX_CODE, escapedReplacement);
             }
         }
-        return phoneNumber;
+        return phoneNumber.trim().length() == 10 ? NIGERIAN_MOBILE_PREFIX_NO_CODE.concat(phoneNumber) : phoneNumber ;
     }
 
     public static String formatMobileWithNigerianCode(String mobile){
