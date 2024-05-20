@@ -11,6 +11,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -149,5 +150,16 @@ public class FileUtilities {
         }catch (Exception exception){
             return null;
         }
+    }
+
+    public static String getDocumentFolderAbsPath(){
+        File currentFolder = new File(StringValues.DOT);
+        File documentFolder = new File(currentFolder, "documents");
+        if(documentFolder.exists()){
+            return documentFolder.getAbsolutePath();
+        }
+        boolean directoryCreated = documentFolder.mkdirs();
+        System.out.printf("Directory created: %s with path: %s", directoryCreated, documentFolder.getAbsolutePath());
+        return documentFolder.getAbsolutePath();
     }
 }

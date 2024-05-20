@@ -1,6 +1,7 @@
 package com.accionmfb.omnix.core.util.pdf;
 
 import com.accionmfb.omnix.core.commons.StringValues;
+import com.accionmfb.omnix.core.util.FileUtilities;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -28,16 +30,15 @@ public class OpenPdfUtility implements PdfUtility{
 
     public static String convertToStaticPdf(String htmlString, String pdfDocName){
         Document doc = Jsoup.parse(htmlString, Strings.EMPTY, Parser.htmlParser());
-        File currentFolder = new File(StringValues.DOT);
-        String folderAbsPath = currentFolder.getAbsolutePath();
-        String pdfAbsPath = folderAbsPath.concat(pdfDocName);
+        String folderAbsPath = FileUtilities.getDocumentFolderAbsPath();
+        String pdfAbsPath = folderAbsPath.concat(File.separator).concat(pdfDocName);
         try (OutputStream os = new FileOutputStream(pdfAbsPath)) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.withUri(pdfAbsPath);
             builder.useFastMode();
             builder.useSVGDrawer(new BatikSVGDrawer());
             builder.toStream(os);
-            builder.withW3cDocument(new W3CDom().fromJsoup(doc), "/");
+            builder.withW3cDocument(new W3CDom().fromJsoup(doc), StringValues.FORWARD_STROKE);
             builder.run();
         }catch (Exception exception){
             log.error("Exception message: {}", exception.getMessage());
@@ -45,5 +46,16 @@ public class OpenPdfUtility implements PdfUtility{
             throw new RuntimeException(exception.getMessage());
         }
         return pdfAbsPath;
+    }
+
+    public static String convertToStaticPdf(String resourcePath, Map<String, Object> context, String pdfDocName){
+        String htmlString = FileUtilities.downloadAndFormatOuterHtmlFromResource(resourcePath, context);
+        return convertToStaticPdf(htmlString, pdfDocName);
+    }
+
+    public static String downloadAndConvertHtmlToPdfFromLink(String link, Map<String, Object> contextData, String pdfDocName){
+        String htmlString = FileUtilities.downloadOuterHtmlFromHtmlLink(link);
+        String formattedHtmlString = FileUtilities.formatHtmlLinkWithSimpleContextBinder(htmlString, contextData);
+        return convertToStaticPdf(formattedHtmlString, pdfDocName);
     }
 }

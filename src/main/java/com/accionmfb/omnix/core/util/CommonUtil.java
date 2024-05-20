@@ -13,7 +13,11 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -52,6 +56,12 @@ public class CommonUtil {
             "0909", "0908", "0818", "0809",
             "0817"
     );
+
+    private static final Map<Long, String> ampmStrings = Map.of(0L, "AM", 1L, "PM");
+    private static final DateTimeFormatter AM_PM_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendPattern("hh:mm")
+            .appendText(ChronoField.AMPM_OF_DAY, ampmStrings)
+            .toFormatter();
 
     public static ZoneId getLagosZoneId(){
         return ZoneId.of(StringValues.AFRICA_LAGOS_ZONE);
@@ -221,12 +231,28 @@ public class CommonUtil {
         return StringValues.EMPTY_STRING;
     }
 
+    public static String maskString(String input, int visibleCharacters) {
+        if (input == null || input.isEmpty() || visibleCharacters >= input.length()) {
+            return input;
+        }
+        StringBuilder maskedString = new StringBuilder();
+        int maskedLength = input.length() - visibleCharacters;
+        maskedString.append(input, 0, visibleCharacters);
+        maskedString.append("x".repeat(Math.max(0, maskedLength)));
+        maskedString.append(input, input.length() - visibleCharacters, input.length());
+        return maskedString.toString();
+    }
+
     //--------------------------------------- List Utils -------------------------------//
     public static <T> List<T> merge(List<T> first, List<T> second){
         List<T> combined = new ArrayList<>();
         combined.addAll(first);
         combined.addAll(second);
         return combined;
+    }
+
+    public static String formatToAmPmTime(LocalTime localTime){
+        return AM_PM_TIME_FORMATTER.format(localTime);
     }
 
     // -------------------------------- Message source util ---------------------------//
@@ -244,5 +270,10 @@ public class CommonUtil {
         }catch (Exception exception){
             return  key;
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(DateTimeFormatter.ofPattern("dd MMM yyyy").format(LocalDateTime.now()));
+        System.out.println(DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now()));
     }
 }
