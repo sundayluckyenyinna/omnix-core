@@ -252,6 +252,11 @@
             <artifactId>javase</artifactId>
             <version>3.4.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>html2pdf</artifactId>
+            <version>5.0.4</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

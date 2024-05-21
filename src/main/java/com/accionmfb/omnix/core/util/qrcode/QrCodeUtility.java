@@ -25,7 +25,7 @@ public class QrCodeUtility {
             BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, width, height, hintMap);
 
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outStream);
+            MatrixToImageWriter.writeToStream(bitMatrix, "GIF", outStream);
             File directory = new File(StringValues.DOT);
             String qrCodeAbsPath = directory.getAbsolutePath().concat(File.separator).concat(filePath);
             try (FileOutputStream fileOutStream = new FileOutputStream(qrCodeAbsPath)) {
@@ -39,9 +39,5 @@ public class QrCodeUtility {
 
     public static String generateQRCode(String text, String filePath) {
         return generateQRCode(text, filePath, 500, 500);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(generateQRCode("https://apps.apple.com/ng/app/accionmonie/id1626083336", "qrcode.png"));
     }
 }

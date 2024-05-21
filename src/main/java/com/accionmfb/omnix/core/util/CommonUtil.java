@@ -271,9 +271,4 @@ public class CommonUtil {
             return  key;
         }
     }
-
-    public static void main(String[] args) {
-        System.out.println(DateTimeFormatter.ofPattern("dd MMM yyyy").format(LocalDateTime.now()));
-        System.out.println(DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now()));
-    }
 }
