@@ -1,6 +1,8 @@
 package com.accionmfb.omnix.core.util;
 
+import com.accionmfb.omnix.core.commons.ResponseCode;
 import com.accionmfb.omnix.core.commons.StringValues;
+import com.accionmfb.omnix.core.exception.OmnixApiException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,8 +18,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -57,11 +57,7 @@ public class CommonUtil {
             "0817"
     );
 
-    private static final Map<Long, String> ampmStrings = Map.of(0L, "AM", 1L, "PM");
-    private static final DateTimeFormatter AM_PM_TIME_FORMATTER = new DateTimeFormatterBuilder()
-            .appendPattern("hh:mm")
-            .appendText(ChronoField.AMPM_OF_DAY, ampmStrings)
-            .toFormatter();
+    private static final DateTimeFormatter AM_PM_TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a");
 
     public static ZoneId getLagosZoneId(){
         return ZoneId.of(StringValues.AFRICA_LAGOS_ZONE);
@@ -253,6 +249,14 @@ public class CommonUtil {
 
     public static String formatToAmPmTime(LocalTime localTime){
         return AM_PM_TIME_FORMATTER.format(localTime);
+    }
+
+    public static void throwInternalServerError(Exception exception){
+        throw OmnixApiException.newInstance()
+                .withCode(ResponseCode.INTERNAL_SERVER_ERROR)
+                .withMessage("Internal server error has occurred")
+                .withError("Internal server error has occurred")
+                .withException(exception);
     }
 
     // -------------------------------- Message source util ---------------------------//

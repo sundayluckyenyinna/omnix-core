@@ -45,6 +45,24 @@ public class OmnixFinUtils {
         return setFinScale(ofFinDouble(val1).subtract(ofFinDouble(val2)));
     }
 
+    public static BigDecimal divide(BigDecimal dividend, BigDecimal divisor){
+        BigDecimal scaledDividend = setFinScale(dividend);
+        BigDecimal scaledDivisor = setFinScale(divisor);
+        return scaledDividend.divide(scaledDivisor, FIN_DECIMAL_PLACE, RoundingMode.HALF_UP);
+    }
+
+    public static BigDecimal divide(String dividend, String divisor){
+        return divide(ofFinString(dividend), ofFinString(divisor));
+    }
+
+    public static BigDecimal divide(BigDecimal dividend, double divisor){
+        return divide(dividend, ofFinDouble(divisor));
+    }
+
+    public static BigDecimal divide(BigDecimal dividend, Integer divisor){
+        return divide(dividend, ofFinDouble(Double.parseDouble(String.valueOf(divisor))));
+    }
+
     public static BigDecimal setFinScale(BigDecimal bigDecimal){
         return bigDecimal.setScale(FIN_DECIMAL_PLACE, RoundingMode.HALF_UP);
     }

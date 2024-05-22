@@ -1,14 +1,12 @@
 package com.accionmfb.omnix.core.logger;
 
 import com.accionmfb.omnix.core.commons.StringValues;
-import com.accionmfb.omnix.core.feign.OmnixHttpClientResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.RequestTemplate;
 import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 

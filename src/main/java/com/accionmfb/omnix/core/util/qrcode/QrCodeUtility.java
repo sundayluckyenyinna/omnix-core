@@ -25,7 +25,7 @@ public class QrCodeUtility {
             BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, width, height, hintMap);
 
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "GIF", outStream);
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outStream);
             File directory = new File(StringValues.DOT);
             String qrCodeAbsPath = directory.getAbsolutePath().concat(File.separator).concat(filePath);
             try (FileOutputStream fileOutStream = new FileOutputStream(qrCodeAbsPath)) {
