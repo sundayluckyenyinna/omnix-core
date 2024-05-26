@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -30,6 +31,7 @@ public class CommonUtil {
 
     private final static ObjectMapper C_OBJECT_MAPPER = new ObjectMapper();
     private final MessageSource messageSource;
+    private static MessageSource sMessageSource;
     private final static String ALPHABETS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private final static String NIGERIAN_PHONE_PREFIX_CODE = "234";
     private final static String NIGERIAN_PHONE_PREFIX_POSITIVE_CODE = "+234";
@@ -268,11 +270,33 @@ public class CommonUtil {
         }
     }
 
+    public static String getStaticMessage(String key){
+        try {
+            return sMessageSource.getMessage(key, new Object[]{}, Locale.ENGLISH);
+        }catch (Exception exception){
+            return key;
+        }
+    }
+
     public String getMessage(String key, Object[] params){
         try {
             return messageSource.getMessage(key, params, Locale.ENGLISH);
         }catch (Exception exception){
             return  key;
         }
+    }
+
+    public static String getStaticMessage(String key, Object[] params){
+        try {
+            return sMessageSource.getMessage(key, params, Locale.ENGLISH);
+        }catch (Exception exception){
+            return  key;
+        }
+    }
+
+    @Bean
+    public String configure(){
+        sMessageSource = messageSource;
+        return "Success";
     }
 }

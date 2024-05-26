@@ -4,6 +4,7 @@ import com.accionmfb.omnix.core.annotation.HttpLoggingAdvice;
 import com.accionmfb.omnix.core.commons.LogPolicy;
 import com.accionmfb.omnix.core.commons.LogStyle;
 import com.accionmfb.omnix.core.commons.StringValues;
+import com.accionmfb.omnix.core.jwt.JwtTokenUtil;
 import com.accionmfb.omnix.core.util.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ public class OmnixHttpLogger implements Loggable{
 
     private final LoggerStyleProperties loggerStyleProperties;
     private final ObjectMapper objectMapper;
+    private final JwtTokenUtil jwtTokenUtil;
 
     public void logHttpApiRequest(Object requestBody, HttpServletRequest servletRequest){
         try {
@@ -36,6 +38,9 @@ public class OmnixHttpLogger implements Loggable{
             log.info("=============================================  HTTP REQUEST START ======================================================");
             log.info("Request URI: {} {}", servletRequest.getMethod(), servletRequest.getRequestURI());
             log.info("Remote IP: {}", CommonUtil.returnOrDefault(servletRequest.getHeader("X-FORWARDED-FOR"), servletRequest.getRemoteAddr()));
+            try{ log.info("Channel: {}", jwtTokenUtil.getChannelFromToken(servletRequest.getHeader(StringValues.AUTH_HEADER_KEY))); }catch (Exception ignored){}
+            try{ log.info("Customer SessionId: {}", jwtTokenUtil.getUserSessionIdFromToken(servletRequest.getHeader(StringValues.ID_TOKEN_KEY))); }catch (Exception ignored){}
+            try{ log.info("Admin User Email: {}", jwtTokenUtil.getAdminUserEmailFromToken(servletRequest.getHeader(StringValues.ID_TOKEN_KEY))); }catch (Exception ignored){}
             log.info("Request SessionId: {}", servletRequest.getRequestedSessionId());
             writeBodyByLogStyle(requestBody);
             log.info("Request Headers: {}", getHeadersFromServletRequest(servletRequest));
