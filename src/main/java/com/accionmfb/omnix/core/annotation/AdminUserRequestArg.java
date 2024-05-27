@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 @ApiIgnore
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AdminUserEntity {
+public @interface AdminUserRequestArg {
 
     boolean authenticate() default true;
 }

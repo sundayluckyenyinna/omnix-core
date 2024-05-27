@@ -6,7 +6,6 @@ import java.lang.annotation.*;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestMetaArg {
-    boolean authenticateAppUser() default true;
 
     boolean authenticateCustomer() default true;
 }
