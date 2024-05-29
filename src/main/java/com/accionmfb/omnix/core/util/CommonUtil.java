@@ -13,6 +13,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -123,6 +124,20 @@ public class CommonUtil {
 
     public static boolean isNullOrEmpty(Object object){
         return Objects.isNull(object) || String.valueOf(object).isEmpty();
+    }
+
+    public static void trimFields(Object object){
+        Field[] fields = object.getClass().getDeclaredFields();
+        Arrays.stream(fields)
+                .peek(field -> field.setAccessible(true))
+                .forEach(field -> {
+                    try {
+                        Object filedValue = field.get(object);
+                        if(Objects.nonNull(filedValue) && filedValue.getClass().isAssignableFrom(String.class)){
+                            field.set(object, String.valueOf(filedValue).trim());
+                        }
+                    } catch (Exception ignored) {}
+                });
     }
 
     public static boolean nonNullOrEmpty(Object object){
