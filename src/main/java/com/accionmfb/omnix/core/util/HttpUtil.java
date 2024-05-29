@@ -43,4 +43,10 @@ public class HttpUtil {
                 .withError(exception.getMessage());
     }
 
+    public static OmnixApiException getResolvedException(String responseCode, String responseMessage){
+        return OmnixApiException.newInstance()
+                .withCode(responseCode)
+                .withMessage(responseMessage)
+                .withError(responseMessage);
+    }
 }
