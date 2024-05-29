@@ -28,4 +28,19 @@ public class HttpUtil {
                 .withMessage(message)
                 .withError(CLIENT_PRETTY_RESPONSE);
     }
+
+    public static OmnixApiException getResolvedFailedModelException(String message){
+        return OmnixApiException.newInstance()
+                .withCode(ResponseCode.FAILED_MODEL)
+                .withMessage(message)
+                .withError(message);
+    }
+
+    public static OmnixApiException getResolvedFailedModelException(Exception exception){
+        return OmnixApiException.newInstance()
+                .withCode(ResponseCode.FAILED_MODEL)
+                .withMessage(exception.getMessage())
+                .withError(exception.getMessage());
+    }
+
 }
