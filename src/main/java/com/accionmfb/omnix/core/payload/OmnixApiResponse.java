@@ -33,6 +33,10 @@ public class OmnixApiResponse<T>{
 
     private T responseData;
 
+    public static <T> OmnixApiResponse<T> getInstance(){
+        return new OmnixApiResponse<>();
+    }
+
     public static <T> OmnixApiResponse<T> getInstance(Class<T> tClass){
         return new OmnixApiResponse<>();
     }
