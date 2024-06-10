@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Import;
         NoRequestBodyInterceptorRegistry.class,
         OmnixRequestBodyAdvice.class,
         OmnixResponseBodyAdvice.class,
-        OmnixResponseBodyAdvice.class,
         OmnixRestControllerAdvice.class,
         RestControllerIdTokenUnawareConfig.class
 })
