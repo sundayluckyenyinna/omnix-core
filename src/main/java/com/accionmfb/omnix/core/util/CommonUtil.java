@@ -25,6 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -102,6 +103,23 @@ public class CommonUtil {
     public static <T> T copyProperties(Object source, T target){
         BeanUtils.copyProperties(source, target);
         return target;
+    }
+
+    public static List<String> getDistinctValues(List<String> values){
+        Comparator<String> caseInsensitiveComparator = String::compareToIgnoreCase;
+        Set<String> set = new TreeSet<>(caseInsensitiveComparator);
+        set.addAll(values);
+        return new ArrayList<>(set);
+    }
+
+    public static List<String> getDistinctValues(String ...values){
+        List<String> valueList = new ArrayList<>(List.of(values));
+        return getDistinctValues(valueList);
+    }
+
+    public static List<String> getDistinctValues(String[] ...arrays){
+        List<String> merged = merge(arrays);
+        return getDistinctValues(merged);
     }
 
     public static String cleanToken(String token){
@@ -264,6 +282,15 @@ public class CommonUtil {
         return combined;
     }
 
+    @SafeVarargs
+    public static <T> List<T> merge(T[]...arrays){
+        List<T> mergedResult = new ArrayList<>();
+        for(T[] array: arrays){
+            mergedResult.addAll(List.of(array));
+        }
+        return mergedResult;
+    }
+
     public static String formatToAmPmTime(LocalTime localTime){
         return AM_PM_TIME_FORMATTER.format(localTime);
     }
@@ -313,5 +340,11 @@ public class CommonUtil {
     public String configure(){
         sMessageSource = messageSource;
         return "Success";
+    }
+
+    public static void main(String[] args) {
+        String[] names = "Enyinna Lucky".split(" ");
+        String[] otherName = "Sunday Enyinna".split(" ");
+        System.out.println(getDistinctValues(names, otherName));
     }
 }

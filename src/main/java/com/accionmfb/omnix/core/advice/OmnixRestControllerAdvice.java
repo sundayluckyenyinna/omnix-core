@@ -139,6 +139,7 @@ public class OmnixRestControllerAdvice {
             EncryptionPayload encryptionPayload = EncryptionPayload.withResponse(encryptedResponse);
             responseJson = objectMapper.writeValueAsString(encryptionPayload);
         }
+        log.info("Encrypted Exception Response: {}", responseJson);
         servletResponse.getWriter().write(responseJson);
     }
 }
