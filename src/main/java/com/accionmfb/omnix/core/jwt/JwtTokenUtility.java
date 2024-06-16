@@ -181,7 +181,6 @@ public class JwtTokenUtility implements JwtTokenUtil{
     }
 
     private Claims buildClaims(String keyValue, String channel, String subject, TokenType tokenType) {
-        log.info("Login token type: {}", tokenType);
         String base64Credentials;
         switch (tokenType){
             case APP_USER_TOKEN : { base64Credentials = buildAppUserBase64EncodedJwtCredentials(keyValue, channel); break; }

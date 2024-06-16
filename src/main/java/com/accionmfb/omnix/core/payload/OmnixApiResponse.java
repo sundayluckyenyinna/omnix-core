@@ -27,7 +27,7 @@ public class OmnixApiResponse<T>{
     @Schema(example = "Successful operation", description = "response message for the request and describing the API response", required = true)
     protected String responseMessage;
 
-    @Schema(example = "[ ]", description = "List of customer side errors")
+    @Schema(example = "[]", description = "List of customer side errors")
     protected List<String> errors = new ArrayList<>();
 
 

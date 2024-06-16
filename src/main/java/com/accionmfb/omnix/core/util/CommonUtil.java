@@ -282,6 +282,10 @@ public class CommonUtil {
         return combined;
     }
 
+    public static String generateGuid(){
+        return UUID.randomUUID().toString().replace(StringValues.HYPHEN, StringValues.EMPTY_STRING);
+    }
+
     @SafeVarargs
     public static <T> List<T> merge(T[]...arrays){
         List<T> mergedResult = new ArrayList<>();
@@ -340,11 +344,5 @@ public class CommonUtil {
     public String configure(){
         sMessageSource = messageSource;
         return "Success";
-    }
-
-    public static void main(String[] args) {
-        String[] names = "Enyinna Lucky".split(" ");
-        String[] otherName = "Sunday Enyinna".split(" ");
-        System.out.println(getDistinctValues(names, otherName));
     }
 }
