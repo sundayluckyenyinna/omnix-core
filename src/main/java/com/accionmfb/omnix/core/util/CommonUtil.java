@@ -7,14 +7,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,6 +34,9 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class CommonUtil {
+
+    @Value("${server.port}")
+    private Integer port;
 
     private final static ObjectMapper C_OBJECT_MAPPER = new ObjectMapper();
     private final MessageSource messageSource;
@@ -60,6 +67,8 @@ public class CommonUtil {
             "0909", "0908", "0818", "0809",
             "0817"
     );
+
+    public static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance();
 
     private static final DateTimeFormatter AM_PM_TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a");
 
@@ -158,6 +167,15 @@ public class CommonUtil {
                 });
     }
 
+    public static String getParseableLocalDateString(@NonNull String pattern){
+        pattern = pattern.trim();
+        List<String> tokens = Arrays.stream(pattern.split(StringValues.SINGLE_SPACE)).map(String::trim).collect(Collectors.toList());
+        String monthString = tokens.get(1);
+        String parseableMonth = String.valueOf(monthString.charAt(0)).toUpperCase().concat(monthString.substring(1).toLowerCase());
+        tokens.set(1, parseableMonth);
+        return String.join(StringValues.SINGLE_SPACE, tokens);
+    }
+
     public static boolean nonNullOrEmpty(Object object){
         return !isNullOrEmpty(object);
     }
@@ -230,6 +248,19 @@ public class CommonUtil {
             formattedMobile = NIGERIAN_PHONE_PREFIX_CODE.concat(mobile.substring(1)).trim();
         }
         return formattedMobile;
+    }
+
+    public String getAddressRelativeToStaticResource(String resource){
+        String hostAddress = getCurrentLocalAddress();
+        return String.format("http://%s:%s/%s", hostAddress, port, resource);
+    }
+
+    public static String getCurrentLocalAddress(){
+        try{
+            return InetAddress.getLocalHost().getHostAddress();
+        }catch (Exception exception){
+            return "localhost";
+        }
     }
 
     public static String resolveTelcoFromMobileNumber(String mobileNumber){

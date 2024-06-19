@@ -117,7 +117,7 @@ public class OmnixRestControllerAdvice {
         apiBaseResponse.setResponseCode(ResponseCode.FAILED_MODEL);
         apiBaseResponse.setResponseMessage(exception.getMessage());
         apiBaseResponse.setErrors(Collections.singletonList(apiBaseResponse.getResponseMessage()));
-        writeResponseToClient(apiBaseResponse, HttpStatus.BAD_REQUEST.value(), servletRequest, servletResponse);
+        writeResponseToClient(apiBaseResponse, HttpStatus.OK.value(), servletRequest, servletResponse);
     }
 
     private void writeResponseToClient(Object payload, int statusCode, HttpServletRequest servletRequest,  HttpServletResponse servletResponse) throws Exception{
