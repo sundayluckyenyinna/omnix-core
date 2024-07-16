@@ -14,6 +14,8 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 @Slf4j
@@ -161,5 +163,17 @@ public class FileUtilities {
         boolean directoryCreated = documentFolder.mkdirs();
         System.out.printf("Directory created: %s with path: %s", directoryCreated, documentFolder.getAbsolutePath());
         return documentFolder.getAbsolutePath();
+    }
+
+    public static String getMimeTypeByExtension(String extension){
+        try {
+            extension = extension.startsWith(StringValues.DOT) ? extension.trim().substring(1) : extension.trim();
+            Path tempFile = Files.createTempFile("temp", StringValues.DOT.concat(extension));
+            String mimeType = Files.probeContentType(tempFile);
+            Files.delete(tempFile);
+            return mimeType;
+        }catch (Exception exception){
+            return "application/pdf";
+        }
     }
 }

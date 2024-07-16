@@ -68,7 +68,7 @@ public class CommonUtil {
             "0817"
     );
 
-    public static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance();
+    public static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
 
     private static final DateTimeFormatter AM_PM_TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a");
 

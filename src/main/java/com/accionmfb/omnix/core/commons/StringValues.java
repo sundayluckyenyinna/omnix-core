@@ -50,6 +50,7 @@ public interface StringValues {
     String ID_TOKEN_KEY = "idToken";
     String SINGLE_QUOTE = "\"";
     String TAB = "\t";
+    String NEW_LINE = "\n";
 
 
     // Patterns

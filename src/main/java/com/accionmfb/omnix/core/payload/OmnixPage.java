@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -11,6 +12,11 @@ import java.util.List;
 public class OmnixPage<T> {
     private PaginationMeta meta;
     private List<T> records;
+
+    private OmnixPage(){
+        this.meta = new PaginationMeta();
+        this.records = new ArrayList<>();
+    }
 
     public static <T> OmnixPage<T> from(Page<T> page){
         List<T> content = page.getContent();
@@ -33,5 +39,9 @@ public class OmnixPage<T> {
     public OmnixPage<T> withRecords(List<T> records){
         setRecords(records);
         return this;
+    }
+
+    public static <T> OmnixPage<T> emptyPage(){
+        return new OmnixPage<>();
     }
 }

@@ -48,7 +48,7 @@ public class OmnixFinUtils {
     public static BigDecimal divide(BigDecimal dividend, BigDecimal divisor){
         BigDecimal scaledDividend = setFinScale(dividend);
         BigDecimal scaledDivisor = setFinScale(divisor);
-        return scaledDividend.divide(scaledDivisor, FIN_DECIMAL_PLACE, RoundingMode.HALF_UP);
+        return scaledDividend.divide(scaledDivisor, FIN_DECIMAL_PLACE, RoundingMode.CEILING);
     }
 
     public static BigDecimal divide(String dividend, String divisor){
@@ -64,7 +64,7 @@ public class OmnixFinUtils {
     }
 
     public static BigDecimal setFinScale(BigDecimal bigDecimal){
-        return bigDecimal.setScale(FIN_DECIMAL_PLACE, RoundingMode.HALF_UP);
+        return bigDecimal.setScale(FIN_DECIMAL_PLACE, RoundingMode.CEILING);
     }
 
     public static String formatFin(BigDecimal bigDecimal){
@@ -73,6 +73,13 @@ public class OmnixFinUtils {
 
     public static String formatFin(String value){
         return formatFin(ofFinString(value));
+    }
+
+    public static BigDecimal finPercentChange(String percent, BigDecimal amount){
+        BigDecimal change = OmnixFinUtils.ofFinString(percent)
+                .divide(OmnixFinUtils.ofFinDouble(100), FIN_DECIMAL_PLACE, RoundingMode.CEILING)
+                .multiply(amount);
+        return change.setScale(FIN_DECIMAL_PLACE, RoundingMode.CEILING);
     }
 
     public static String translate(String countryCode, String lang, String amount, String fractionUnitName) {
