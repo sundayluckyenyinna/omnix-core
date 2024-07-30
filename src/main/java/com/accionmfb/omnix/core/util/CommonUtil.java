@@ -25,6 +25,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -324,6 +325,23 @@ public class CommonUtil {
             mergedResult.addAll(List.of(array));
         }
         return mergedResult;
+    }
+
+    public static boolean isItemMatch(List<String> list1, List<String> list2, int minMatchCount){
+        try {
+            Set<String> set1 = new LinkedHashSet<>(list1);
+            Set<String> set2 = new LinkedHashSet<>(list2);
+            AtomicInteger count = new AtomicInteger(0);
+            set1.forEach(item -> {
+                boolean isMatchInSecondSet = set2.stream().anyMatch(item2 -> item2.trim().equalsIgnoreCase(item.trim()));
+                if(isMatchInSecondSet){
+                    count.incrementAndGet();
+                }
+            });
+            return count.get() >= minMatchCount;
+        }catch (Exception exception){
+            return false;
+        }
     }
 
     public static String formatToAmPmTime(LocalTime localTime){
