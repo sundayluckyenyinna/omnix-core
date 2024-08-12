@@ -1,7 +1,9 @@
 package com.accionmfb.omnix.core.advice;
 
 import com.accionmfb.omnix.core.annotation.EncryptionPolicyAdvice;
+import com.accionmfb.omnix.core.annotation.HttpLoggingAdvice;
 import com.accionmfb.omnix.core.commons.EncryptionPolicy;
+import com.accionmfb.omnix.core.commons.LogPolicy;
 import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.encryption.EncryptionProperties;
 import com.accionmfb.omnix.core.encryption.manager.OmnixEncryptionService;
@@ -72,7 +74,7 @@ public class OmnixResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                 EncryptionPayload payload = new EncryptionPayload();
                 payload.setResponse(encryptedResponse);
                 responseObject = payload;
-                log.info("Encrypted Response Body: {}", objectMapper.writeValueAsString(payload));
+                logEncryptedResponseBody(controllerMethod, payload);
             }
         }
         return responseObject;
@@ -80,5 +82,19 @@ public class OmnixResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private boolean shouldEncryptResponse(EncryptionPolicy encryptionPolicy){
         return encryptionPolicy == EncryptionPolicy.RESPONSE || encryptionPolicy == EncryptionPolicy.REQUEST_AND_RESPONSE;
+    }
+
+    private void logEncryptedResponseBody(Method controllerMethod, EncryptionPayload payload){
+        try{
+            HttpLoggingAdvice loggingAdvice = controllerMethod.getAnnotation(HttpLoggingAdvice.class);
+            if(Objects.nonNull(loggingAdvice)){
+                LogPolicy logPolicy = loggingAdvice.direction();
+                if(logPolicy == LogPolicy.RESPONSE || logPolicy == LogPolicy.REQUEST_AND_RESPONSE){
+                    log.info("Encrypted Response Body: {}", objectMapper.writeValueAsString(payload));
+                }
+            }else{
+                log.info("Encrypted Response Body: {}", objectMapper.writeValueAsString(payload));
+            }
+        }catch (Exception ignored){}
     }
 }
