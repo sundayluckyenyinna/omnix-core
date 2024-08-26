@@ -306,6 +306,10 @@ public class CommonUtil {
         return maskedString.toString();
     }
 
+    public static String makeSqlSearchable(String searchKey){
+        return CommonUtil.isNullOrEmpty(searchKey) ? StringValues.EMPTY_STRING : StringValues.PERCENT.concat(searchKey).concat(StringValues.PERCENT);
+    }
+
     //--------------------------------------- List Utils -------------------------------//
     public static <T> List<T> merge(List<T> first, List<T> second){
         List<T> combined = new ArrayList<>();

@@ -53,16 +53,16 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
                     EncryptionPayload payload = EncryptionPayload.withRequest(encryptedRequest);
                     String payloadJson = objectMapper.writeValueAsString(payload);
                     requestTemplate.body(payloadJson);
-                    feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, payloadJson);
+//                    feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, payloadJson);
                 }else{
-                    feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, StringValues.EMPTY_STRING);
+//                    feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, StringValues.EMPTY_STRING);
                 }
             }catch (Exception exception){
                 log.error("Exception occurred while intercepting feign request body");
                 log.error("Exception message is: {}", exception.getMessage());
             }
         }else{
-            feignLogger.logHttpFeignRequest(requestTemplate, StringValues.EMPTY_STRING, StringValues.EMPTY_STRING);
+//            feignLogger.logHttpFeignRequest(requestTemplate, StringValues.EMPTY_STRING, StringValues.EMPTY_STRING);
         }
     }
 
@@ -78,10 +78,10 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
             EncryptionPayload encryptionPayload = objectMapper.readValue(responseBody, EncryptionPayload.class);
             String encryptedResponse = encryptionPayload.getResponse();
             String decryptedResponseBody = encryptionService.decryptWithKey(encryptedResponse, encryptionKey);
-            feignLogger.logHttpFeignResponse(response, responseBody, decryptedResponseBody);
+//            feignLogger.logHttpFeignResponse(response, responseBody, decryptedResponseBody);
             return objectMapper.readValue(decryptedResponseBody, objectMapper.constructType(type));
         }else {
-            feignLogger.logHttpFeignResponse(response, responseBody, StringValues.EMPTY_STRING);
+//            feignLogger.logHttpFeignResponse(response, responseBody, StringValues.EMPTY_STRING);
             return objectMapper.readValue(responseBody, objectMapper.constructType(type));
         }
     }
