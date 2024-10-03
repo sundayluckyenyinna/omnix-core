@@ -148,6 +148,7 @@ public class JwtTokenUtility implements JwtTokenUtil{
             String bareCredentialJson = new String(Base64.getDecoder().decode(base64Credentials));
             Map<String, String> credentialMap = objectMapper.readValue(bareCredentialJson, new TypeReference<HashMap<String, String>>() {
             });
+            System.out.println("credentialMap" + credentialMap);
             String value = credentialMap.get(claimKey);
             return Objects.isNull(value) ? null : value;
         }catch (ExpiredJwtException exception){
