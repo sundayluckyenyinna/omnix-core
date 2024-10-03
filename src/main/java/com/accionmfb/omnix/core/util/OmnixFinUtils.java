@@ -14,7 +14,7 @@ import java.util.Locale;
 public class OmnixFinUtils {
 
     private static final int FIN_DECIMAL_PLACE = 2;
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,###");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,###.00");
 
     public static BigDecimal ofFinString(String finance){
         finance = finance.replaceAll(StringValues.COMMA, StringValues.EMPTY_STRING).trim();

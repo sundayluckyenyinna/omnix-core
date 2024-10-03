@@ -1,5 +1,8 @@
 package com.accionmfb.omnix.core.util;
 
+import com.accionmfb.omnix.core.commons.StringValues;
+import lombok.NonNull;
+
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
@@ -22,5 +25,10 @@ public class CryptoUtilities {
     private static byte[] base36DecodeBytes(String input) {
         BigInteger number = new BigInteger(input, 36);
         return number.toByteArray();
+    }
+
+    public static String sign(@NonNull String identity, @NonNull String secret){
+        String concat = identity.concat(StringValues.COLON).concat(secret);
+        return base36Encode(concat);
     }
 }
