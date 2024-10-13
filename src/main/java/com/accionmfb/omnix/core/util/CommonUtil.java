@@ -333,6 +333,8 @@ public class CommonUtil {
 
     public static boolean isItemMatch(List<String> list1, List<String> list2, int minMatchCount){
         try {
+            list1 = list1.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            list2 = list2.stream().filter(Objects::nonNull).collect(Collectors.toList());
             Set<String> set1 = new LinkedHashSet<>(list1);
             Set<String> set2 = new LinkedHashSet<>(list2);
             AtomicInteger count = new AtomicInteger(0);
