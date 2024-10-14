@@ -400,4 +400,16 @@ public class CommonUtil {
         sMessageSource = messageSource;
         return "Success";
     }
+
+    //---------------------------------Validation Util----------------------------------//
+
+    public static boolean validatePassword(String password){
+        String passwordPattern = "^(?=.*[0-9])" +
+                "(?=.*[a-z])" +
+                "(?=.*[A-Z])" +
+                "(?=.*[@#$%^&+=!])" +
+                "(?=\\S+$)" +
+                ".{8,}$";
+        return password.matches(passwordPattern);
+    }
 }
