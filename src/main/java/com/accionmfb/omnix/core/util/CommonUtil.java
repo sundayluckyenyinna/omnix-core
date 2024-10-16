@@ -31,6 +31,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
@@ -443,5 +444,14 @@ public class CommonUtil {
         int base64Length = base64String.length();
         int size = ((base64Length * 3) / 4 - paddingCount);
         return size <= MAX_FILE_SIZE;
+    }
+
+    public static boolean containsSpecialCharacter(String value){
+        if(isNullOrEmpty(value)){
+            return false;
+        }
+        Pattern specialCharacterPattern = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = specialCharacterPattern.matcher(value);
+        return matcher.find();
     }
 }
