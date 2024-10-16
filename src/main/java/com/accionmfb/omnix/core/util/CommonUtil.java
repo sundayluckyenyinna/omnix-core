@@ -13,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -47,6 +48,10 @@ public class CommonUtil {
     private final static String NIGERIAN_PHONE_PREFIX_POSITIVE_CODE = "+234";
     private final static String NIGERIAN_PHONE_PREFIX_POSITIVE_CODE_ESC = "\\+234";
     private final static String NIGERIAN_MOBILE_PREFIX_NO_CODE = "0";
+    private final static int MAX_FILE_SIZE = 50 * 1024 * 1024; // Maximum file that can be uploaded...
+    private final static List<String> ALLOWED_EXTENSIONS = List.of(".jpg", ".jpeg", ".pdf", ".png", "jpg", "jpeg", "pdf", "png");
+    private final static List<String> ALLOWED_MIME_TYPE = List.of(MediaType.IMAGE_PNG_VALUE, MediaType.APPLICATION_PDF_VALUE, MediaType.IMAGE_JPEG_VALUE, "image/jpg");
+    private final static List<String> ALLOWED_FILE_TYPE = List.of("pdf", "image");
 
     private final static List<String> MTN_PREFIX = List.of(
             "0803", "0816", "0903", "0810",
@@ -411,5 +416,32 @@ public class CommonUtil {
                 "(?=\\S+$)" +
                 ".{8,}$";
         return password.matches(passwordPattern);
+    }
+
+    public static boolean isValidMemeType(String contentType) {
+        return ALLOWED_MIME_TYPE.contains(contentType);
+    }
+    public static boolean isValidFileType(String contentType) {
+        return ALLOWED_FILE_TYPE.contains(contentType);
+    }
+
+    public static boolean isValidExtension(String extension) {
+        return ALLOWED_EXTENSIONS.contains(extension);
+    }
+
+    public static boolean getFileSizeFromBase64(String base64String) {
+        int paddingCount = 0;
+        if (base64String.endsWith(StringValues.EQUALS+StringValues.EQUALS)) {
+            paddingCount = 2;
+        } else if (base64String.endsWith(StringValues.EQUALS)) {
+            paddingCount = 1;
+        } else{
+            throw OmnixApiException.newInstance()
+                    .withCode(ResponseCode.BAD_REQUEST)
+                    .withMessage("Invalid file uploaded");
+        }
+        int base64Length = base64String.length();
+        int size = ((base64Length * 3) / 4 - paddingCount);
+        return size <= MAX_FILE_SIZE;
     }
 }
