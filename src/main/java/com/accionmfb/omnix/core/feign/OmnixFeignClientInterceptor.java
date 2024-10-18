@@ -1,20 +1,20 @@
 package com.accionmfb.omnix.core.feign;
 
+import com.accionmfb.omnix.core.commons.OmnixParam;
 import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.encryption.EncryptionProperties;
 import com.accionmfb.omnix.core.encryption.manager.OmnixEncryptionService;
+import com.accionmfb.omnix.core.localsource.core.LocalParamStorage;
 import com.accionmfb.omnix.core.logger.OmnixFeignLogger;
 import com.accionmfb.omnix.core.payload.EncryptionPayload;
 import com.accionmfb.omnix.core.util.CommonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
-import feign.Response;
+import feign.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.support.SpringDecoder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -27,15 +27,17 @@ import java.util.Objects;
 public class OmnixFeignClientInterceptor extends SpringDecoder implements RequestInterceptor {
     private final ObjectMapper objectMapper;
     private final OmnixFeignLogger feignLogger;
+    private final LocalParamStorage localParamStorage;
     private final OmnixEncryptionService encryptionService;
     private final EncryptionProperties encryptionProperties;
 
-    public OmnixFeignClientInterceptor(ObjectFactory<HttpMessageConverters> messageConverters, ObjectMapper objectMapper, OmnixFeignLogger feignLogger, OmnixEncryptionService encryptionService, EncryptionProperties encryptionProperties) {
+    public OmnixFeignClientInterceptor(ObjectFactory<HttpMessageConverters> messageConverters, ObjectMapper objectMapper, OmnixFeignLogger feignLogger, OmnixEncryptionService encryptionService, EncryptionProperties encryptionProperties, LocalParamStorage localParamStorage) {
         super(messageConverters);
         this.objectMapper = objectMapper;
         this.feignLogger = feignLogger;
         this.encryptionService = encryptionService;
         this.encryptionProperties = encryptionProperties;
+        this.localParamStorage = localParamStorage;
     }
 
     @Override
@@ -84,5 +86,12 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
 //            feignLogger.logHttpFeignResponse(response, responseBody, StringValues.EMPTY_STRING);
             return objectMapper.readValue(responseBody, objectMapper.constructType(type));
         }
+    }
+
+    @Bean
+    public Request.Options requestOptions(){
+        int connectionTimout = Integer.parseInt(localParamStorage.getParamValueOrDefault(OmnixParam.FEIGN_CLIENT_CONNECTION_TIMEOUT, "10000"));
+        int readTimeout = Integer.parseInt(localParamStorage.getParamValueOrDefault(OmnixParam.FEIGN_CLIENT_READ_TIMEOUT, "10000"));
+        return new Request.Options(connectionTimout, readTimeout);
     }
 }
