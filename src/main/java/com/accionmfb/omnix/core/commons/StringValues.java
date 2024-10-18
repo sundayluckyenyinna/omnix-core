@@ -66,4 +66,5 @@ public interface StringValues {
     String PAGE_SIZE_KEY = "pageSize";
     String DEFAULT_PAGE_NUMBER = "1";
     String DEFAULT_PAGE_SIZE = "10";
+    String MAX_DEFAULT_PAGE_SIZE = "100";
 }
