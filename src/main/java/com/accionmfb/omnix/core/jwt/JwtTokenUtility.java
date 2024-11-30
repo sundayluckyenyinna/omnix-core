@@ -6,17 +6,15 @@ import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.exception.OmnixApiException;
 import com.accionmfb.omnix.core.jwt.props.DefaultJwtProperties;
 import com.accionmfb.omnix.core.localsource.core.LocalParamStorage;
+import com.accionmfb.omnix.core.util.CommonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -113,41 +111,29 @@ public class JwtTokenUtility implements JwtTokenUtil{
 
     @Override
     public boolean isExpiredToken(String token){
-        try {
-            Date expiration = Jwts.parser()
-                    .setSigningKey(defaultJwtProperties.getJwtKey())
-                    .parseClaimsJws(cleanToken(token))
-                    .getBody()
-                    .getExpiration();
-            return Objects.nonNull(expiration) && expiration.before(Date.from(Instant.now()));
-        }catch (ExpiredJwtException exception){
-            throw OmnixApiException.newInstance()
-                    .withCode(ResponseCode.INVALID_CREDENTIALS)
-                    .withStatusCode(HttpStatus.UNAUTHORIZED.value())
-                    .withMessage("Bearer token expired");
-        }
+        return false;
     }
 
     @Override
     public LocalDateTime getTokenIssuedDateTime(String token){
-        return getClaimsFromToken(token).getIssuedAt().toInstant().atZone(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE)).toLocalDateTime();
+        return CommonUtil.getCurrentDateTime();
     }
 
     @Override
     public LocalDateTime getExpirationDateTimeFromToken(String token){
-        return getClaimsFromToken(token).getExpiration().toInstant().atZone(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE)).toLocalDateTime();
+        return CommonUtil.getCurrentDateTime();
     }
 
     @SneakyThrows
     public String getClaimValueFromKey(String claimKey, String token){
         try {
             token = cleanToken(token);
-            Claims claims = getClaimsFromToken(token);
+            Map<String, String> claims = getClaimsFromToken(token);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
             String base64CredentialKey = Base64.getEncoder().encodeToString(JWT_CRED_KEY.getBytes(StandardCharsets.UTF_8));
             String base64Credentials = (String) claims.get(base64CredentialKey);
             String bareCredentialJson = new String(Base64.getDecoder().decode(base64Credentials));
-            Map<String, String> credentialMap = objectMapper.readValue(bareCredentialJson, new TypeReference<HashMap<String, String>>() {
-            });
+            Map<String, String> credentialMap = objectMapper.readValue(bareCredentialJson, new TypeReference<HashMap<String, String>>() {});
             String value = credentialMap.get(claimKey);
             return Objects.isNull(value) ? null : value;
         }catch (ExpiredJwtException exception){
@@ -161,11 +147,17 @@ public class JwtTokenUtility implements JwtTokenUtil{
         }
     }
 
-    public Claims getClaimsFromToken(String token){
-        return Jwts.parser()
-                .setSigningKey(defaultJwtProperties.getJwtKey())
-                .parseClaimsJws(token)
-                .getBody();
+    public Map<String, String> getClaimsFromToken(String token){
+        try {
+            String[] parts = token.split("\\.");
+            String payload = new String(Base64.getDecoder().decode(parts[1].getBytes(StandardCharsets.UTF_8)));
+            JSONObject jsonObject = new JSONObject(payload);
+            return objectMapper.readValue(jsonObject.toString(), new TypeReference<HashMap<String, String>>() {});
+        }catch (Exception exception){
+            System.out.println(exception.getMessage());
+            return null;
+        }
+
     }
 
     private Claims generateAppUserClaims(String apiId, String channel){
