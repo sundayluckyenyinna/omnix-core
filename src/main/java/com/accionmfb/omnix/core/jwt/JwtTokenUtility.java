@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -118,12 +119,12 @@ public class JwtTokenUtility implements JwtTokenUtil{
 
     @Override
     public LocalDateTime getTokenIssuedDateTime(String token){
-        return CommonUtil.getCurrentDateTime();
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(getClaimsFromToken(token).get("iat"))), ZoneId.systemDefault());
     }
 
     @Override
     public LocalDateTime getExpirationDateTimeFromToken(String token){
-        return CommonUtil.getCurrentDateTime();
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(getClaimsFromToken(token).get("exp"))), ZoneId.systemDefault());
     }
 
     @SneakyThrows
