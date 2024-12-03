@@ -87,11 +87,4 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
             return objectMapper.readValue(responseBody, objectMapper.constructType(type));
         }
     }
-
-    @Bean
-    public Request.Options requestOptions(){
-        int connectionTimout = Integer.parseInt(localParamStorage.getParamValueOrDefault(OmnixParam.FEIGN_CLIENT_CONNECTION_TIMEOUT, "10000"));
-        int readTimeout = Integer.parseInt(localParamStorage.getParamValueOrDefault(OmnixParam.FEIGN_CLIENT_READ_TIMEOUT, "10000"));
-        return new Request.Options(connectionTimout, readTimeout);
-    }
 }
