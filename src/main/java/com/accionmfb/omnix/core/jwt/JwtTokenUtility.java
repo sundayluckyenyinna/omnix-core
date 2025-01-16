@@ -152,13 +152,14 @@ public class JwtTokenUtility implements JwtTokenUtil{
 
     public Map<String, String> getClaimsFromToken(String token){
         try {
-            String[] parts = token.split("\\.");
+            String[] parts = token.trim().split("\\.");
+            System.out.println("Parts: " + Arrays.toString(parts));
             String payload = new String(Base64.getDecoder().decode(parts[1].getBytes(StandardCharsets.UTF_8)));
             JSONObject jsonObject = new JSONObject(payload);
             return objectMapper.readValue(jsonObject.toString(), new TypeReference<HashMap<String, String>>() {});
         }catch (Exception exception){
-            System.out.println(exception.getMessage());
-            return null;
+            System.out.println(">>>>>>>>>>>>>>>>>>>here>>>>: " + exception.getMessage());
+            return new HashMap<>();
         }
 
     }
