@@ -2,6 +2,10 @@ package com.accionmfb.omnix.core.util;
 
 import com.accionmfb.omnix.core.commons.StringValues;
 import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.io.inputstream.ZipInputStream;
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.LocalFileHeader;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
@@ -11,11 +15,11 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.Map;
 
 @Slf4j
@@ -174,6 +178,29 @@ public class FileUtilities {
             return mimeType;
         }catch (Exception exception){
             return "application/pdf";
+        }
+    }
+
+    public static String getContentOfProtectedFile(String base64EncodedZip, String password){
+        try {
+            byte[] zipBytes = Base64.getDecoder().decode(base64EncodedZip);
+            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes)) {
+                ZipInputStream zipInputStream = new ZipInputStream(byteArrayInputStream, password.toCharArray());
+                LocalFileHeader fileHeader = zipInputStream.getNextEntry();
+                if (fileHeader == null) {
+                    throw new ZipException("No files found in the zip archive");
+                }
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = zipInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                return outputStream.toString(StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
