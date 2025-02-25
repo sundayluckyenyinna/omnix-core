@@ -180,7 +180,8 @@ public class JwtTokenUtility implements JwtTokenUtil{
         String base64Credentials;
         switch (tokenType){
             case APP_USER_TOKEN : { base64Credentials = buildAppUserBase64EncodedJwtCredentials(keyValue, channel); break; }
-            case ADMIN_USER_TOKEN : { base64Credentials = buildAdminUserSessionBase64EncodedJwtCredentials(keyValue, channel); break; }
+            case ADMIN_USER_TOKEN :
+            case MICRO_AGENT: { base64Credentials = buildAdminUserSessionBase64EncodedJwtCredentials(keyValue, channel); break; }
             case USER_SESSION_TOKEN: { base64Credentials = buildUserSessionBase64EncodedJwtCredentials(keyValue, channel); break; }
             default : {
                 throw new IllegalArgumentException("Invalid token type");
