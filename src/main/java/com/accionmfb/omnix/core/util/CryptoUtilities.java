@@ -6,9 +6,12 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -71,6 +74,18 @@ public class CryptoUtilities {
         return hash(value, hashAlgorithm.getValue());
     }
 
+    public static String generateHmacSignature(String payload, String secretKey, SecretHashAlgorithm algorithm) {
+        try {
+            Mac mac = Mac.getInstance(algorithm.getValue());
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
+            mac.init(secretKeySpec);
+            byte[] hmacBytes = mac.doFinal(payload.getBytes());
+            return Base64.getEncoder().encodeToString(hmacBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating HMAC signature", e);
+        }
+    }
+
     @Getter
     @RequiredArgsConstructor
     public enum HashAlgorithm{
@@ -84,8 +99,20 @@ public class CryptoUtilities {
         SHA224("SHA-224"),
         HMAC("HMAC"),
         RIPEMD160("RIPEMD160"),
-        PBKDF2("PBKDF2");
+        PBKDF2("PBKDF2"),
+        ;
 
         private final String value;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum SecretHashAlgorithm{
+        HMAC_SHA_256("HmacSHA256"),
+        HMAC_SHA_1("HmacSHA1"),
+        HMAC_SHA512("HmacSHA512")
+        ;
+        private final String value;
+
     }
 }
