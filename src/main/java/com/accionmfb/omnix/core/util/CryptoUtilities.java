@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -77,7 +79,7 @@ public class CryptoUtilities {
     public static String generateHmacSignature(String payload, String secretKey, SecretHashAlgorithm algorithm) {
         try {
             Mac mac = Mac.getInstance(algorithm.getValue());
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), algorithm.value);
             mac.init(secretKeySpec);
             byte[] hmacBytes = mac.doFinal(payload.getBytes());
             return Base64.getEncoder().encodeToString(hmacBytes);
@@ -113,6 +115,5 @@ public class CryptoUtilities {
         HMAC_SHA512("HmacSHA512")
         ;
         private final String value;
-
     }
 }
