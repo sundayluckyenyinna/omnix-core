@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
         CommonUtil.class,
         OpenPdfUtility.class,
         HttpUtil.class,
+        SecurityUtil.class,
         FlyingSaucerPdfUtility.class
 })
 public class UtilModule {

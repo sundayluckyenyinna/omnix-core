@@ -7,6 +7,8 @@ import com.accionmfb.omnix.core.localsource.properties.LocalSourceProperties;
 import com.accionmfb.omnix.core.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class JdbcDatasourceServiceImpl implements DatasourceService{
 
     private final JdbcTemplate jdbcTemplate;
+
     private final ApplicationEventPublisher publisher;
     private final LocalSourceProperties localSourceProperties;
 
