@@ -43,6 +43,7 @@ public interface StringValues {
     String BEARER_PREFIX = "Bearer ";
     String APP_USER_KEY = "appUser";
     String ENC_KEY_PLACEHOLDER = "encKey";
+    String ENC_CIPHER_KEY = "ENC_CIPHER_KEY";
     String APP_USER_REQUIRE_ENCY_KEY = "ENC_REQUIRED";
     String REQUEST_BODY_KEY = "REQUEST_BODY";
     String AUTH_KEY_BEARER_PREFIX = "Bearer ";

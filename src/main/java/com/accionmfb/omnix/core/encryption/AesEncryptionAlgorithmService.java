@@ -1,5 +1,7 @@
 package com.accionmfb.omnix.core.encryption;
 
+import com.accionmfb.omnix.core.commons.StringValues;
+import com.accionmfb.omnix.core.util.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -28,6 +31,7 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
 
     private final ObjectMapper objectMapper;
     private final EncryptionProperties properties;
+    private final HttpServletRequest httpServletRequest;
 
     @Override
     public String encrypt(String stringToEncrypt) {
@@ -35,7 +39,8 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
             byte[] key = properties.getAesEncryptionKey().getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
+            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5Padding"));
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return Base64.getEncoder()
                     .encodeToString(cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8)));
@@ -52,7 +57,8 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
             byte[] key = returnOrdefault(encKey, properties.getAesEncryptionKey()).getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
+            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5Padding"));
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return Base64.getEncoder()
                     .encodeToString(cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8)));
@@ -73,7 +79,9 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
         try {
             byte[] key = properties.getAesEncryptionKey().getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+
+            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
+            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5PADDING"));
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             return new String(cipher.doFinal(Base64.getDecoder().decode(stringToDecrypt)));
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException |
@@ -88,7 +96,9 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
         try {
             byte[] key = returnOrdefault(encKey, properties.getAesEncryptionKey()).getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+
+            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
+            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5PADDING"));
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             return new String(cipher.doFinal(Base64.getDecoder().decode(stringToDecrypt)));
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException |
