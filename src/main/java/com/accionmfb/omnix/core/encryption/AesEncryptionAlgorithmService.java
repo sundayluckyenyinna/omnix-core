@@ -13,11 +13,14 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Base64;
 
 import static com.accionmfb.omnix.core.util.OmnixCoreApplicationUtil.returnOrdefault;
@@ -40,12 +43,13 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 
             String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
-            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5Padding"));
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/GCM/NoPadding"));
+            IvParameterSpec ivParameterSpec = generateNewIvSpec();
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey,ivParameterSpec);
             return Base64.getEncoder()
-                    .encodeToString(cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8)));
+                    .encodeToString(cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8))).concat(":").concat(Base64.getEncoder().encodeToString(ivParameterSpec.getIV()));
         } catch (NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException |
-                 InvalidKeyException ex) {
+                 InvalidAlgorithmParameterException| InvalidKeyException ex) {
             log.error("Exception occurred while trying to encrypt value: {}", ex.getMessage());
         }
         return null;
@@ -59,11 +63,12 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
 
             String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
             Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5Padding"));
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            IvParameterSpec ivParameterSpec = generateNewIvSpec();
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
             return Base64.getEncoder()
-                    .encodeToString(cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8)));
+                    .encodeToString(cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8))).concat(":").concat(Base64.getEncoder().encodeToString(ivParameterSpec.getIV()));
         } catch (NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException |
-                 InvalidKeyException ex) {
+                 InvalidAlgorithmParameterException|InvalidKeyException ex) {
             log.error("Exception occurred while trying to encrypt value: {}", ex.getMessage());
         }
         return null;
@@ -82,10 +87,10 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
 
             String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
             Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5PADDING"));
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, getIvParameterSpec());
             return new String(cipher.doFinal(Base64.getDecoder().decode(stringToDecrypt)));
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException |
-                 BadPaddingException ex) {
+                 InvalidAlgorithmParameterException| BadPaddingException ex) {
             log.error("Exception occurred while trying to decrypt value: {}", ex.getMessage());
         }
         return null;
@@ -97,16 +102,18 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
             byte[] key = returnOrdefault(encKey, properties.getAesEncryptionKey()).getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 
-            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
+            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY); // It must be provided
             Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance,"AES/ECB/PKCS5PADDING"));
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, getIvParameterSpec());
             return new String(cipher.doFinal(Base64.getDecoder().decode(stringToDecrypt)));
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException |
-                 BadPaddingException ex) {
+                 InvalidAlgorithmParameterException | BadPaddingException ex) {
             log.error("Exception occurred while trying to decrypt value: {}", ex.getMessage());
         }
         return null;
     }
+
+
 
     @Override
     public String encrypt(Object payload) {
@@ -159,5 +166,19 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
     @Override
     public boolean supports(String algorithm) {
         return algorithm.equalsIgnoreCase(EncryptionAlgorithm.AES.toString());
+    }
+
+    @Override
+    public IvParameterSpec getIvParameterSpec() {
+        String cipherIv = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_IV);
+        return new IvParameterSpec(cipherIv.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public IvParameterSpec generateNewIvSpec(){
+        byte[] iv = new byte[12];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(iv);
+        return new IvParameterSpec(iv);
     }
 }

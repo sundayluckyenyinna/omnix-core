@@ -1,5 +1,7 @@
 package com.accionmfb.omnix.core.encryption;
 
+import javax.crypto.spec.IvParameterSpec;
+
 public interface EncryptionAlgorithmService {
 
     String encrypt(String stringToEncrypt);
@@ -22,4 +24,8 @@ public interface EncryptionAlgorithmService {
 
     EncryptionConfig getEncryptionConfiguration();
     boolean supports(String algorithm);
+
+    IvParameterSpec getIvParameterSpec();
+
+    IvParameterSpec generateNewIvSpec();
 }
