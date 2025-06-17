@@ -1,6 +1,5 @@
 package com.accionmfb.omnix.core.encryption;
 
-import javax.crypto.spec.IvParameterSpec;
 
 public interface EncryptionAlgorithmService {
 
