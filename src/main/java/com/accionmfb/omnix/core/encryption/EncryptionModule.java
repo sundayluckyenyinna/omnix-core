@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Import;
 @Import({
         SimpleOmnixEncryptionService.class,
         AesEncryptionAlgorithmService.class,
+        AesCBCEncryptionAlgorithmService.class,
+        AesGCMEncryptionAlgorithmService.class
 })
 public class EncryptionModule {
 }

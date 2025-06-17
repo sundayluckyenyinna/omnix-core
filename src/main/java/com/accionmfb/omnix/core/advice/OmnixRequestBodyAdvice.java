@@ -67,6 +67,8 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
         Method controllerMethod = parameter.getMethod();
         String encryptionKey = (String) servletRequest.getAttribute(StringValues.ENC_KEY_PLACEHOLDER);
         Boolean decryptionRequired = (Boolean) servletRequest.getAttribute(StringValues.APP_USER_REQUIRE_ENCY_KEY);
+        String encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+
         if(Objects.nonNull(controllerMethod)) {
             EncryptionPolicyAdvice encryptionPolicyAdvice = controllerMethod.getAnnotation(EncryptionPolicyAdvice.class);
             if(Objects.nonNull(encryptionPolicyAdvice) && !shouldDecryptRequest(encryptionPolicyAdvice.value())){
@@ -87,7 +89,7 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
                if(Objects.isNull(encryptionPayload) || Objects.isNull(encryptionPayload.getRequest())){
                    writeEncryptionViolationResponseToClient();
                }else{
-                   String decryptedRequest = encryptionService.decryptWithKey(encryptionPayload.getRequest(), encryptionKey);
+                   String decryptedRequest = encryptionService.decryptWithKey(encryptionAlgorithm, encryptionPayload.getRequest(), encryptionKey);
                    Object requestBodyObject = objectMapper.readValue(decryptedRequest, tClazz);
                    log.info("Decrypted request: {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(requestBodyObject));
                    return requestBodyObject;

@@ -161,6 +161,6 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
 
     @Override
     public boolean supports(String algorithm) {
-        return algorithm.equalsIgnoreCase(EncryptionAlgorithm.AES.toString());
+        return algorithm.equalsIgnoreCase(EncryptionAlgorithm.AES.name());
     }
 }
