@@ -45,6 +45,7 @@ public interface StringValues {
     String ENC_KEY_PLACEHOLDER = "encKey";
     String ENC_CIPHER_KEY = "ENC_CIPHER_KEY";
     String APP_USER_REQUIRE_ENCY_KEY = "ENC_REQUIRED";
+    String APP_USER_ENCRYPTION_ALGORITHM = "APP_USER_ENCRYPTION_ALGORITHM";
     String REQUEST_BODY_KEY = "REQUEST_BODY";
     String AUTH_KEY_BEARER_PREFIX = "Bearer ";
     String AUTH_HEADER_KEY = "Authorization";

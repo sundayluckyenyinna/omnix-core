@@ -1,6 +1,5 @@
 package com.accionmfb.omnix.core.feign;
 
-import com.accionmfb.omnix.core.commons.OmnixParam;
 import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.encryption.EncryptionProperties;
 import com.accionmfb.omnix.core.encryption.manager.OmnixEncryptionService;
@@ -14,9 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.support.SpringDecoder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -48,10 +49,14 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
             try{
                 String encryptionKey = requestTemplate.headers().get(StringValues.ENC_KEY_PLACEHOLDER)
                         .stream().findFirst().orElse(null);
+
+                HttpServletRequest servletRequest = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+                String encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+
                 Collection<String> headerValues  = requestTemplate.headers().get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
                 boolean encryptionRequired = Objects.isNull(headerValues) || headerValues.isEmpty() || headerValues.stream().anyMatch(value -> value.equalsIgnoreCase("true"));
                 if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey) && encryptionRequired){
-                    String encryptedRequest = encryptionService.encryptWithKey(rawRequestBodyJson, encryptionKey);
+                    String encryptedRequest = encryptionService.encryptWithKey(encryptionAlgorithm, rawRequestBodyJson, encryptionKey);
                     EncryptionPayload payload = EncryptionPayload.withRequest(encryptedRequest);
                     String payloadJson = objectMapper.writeValueAsString(payload);
                     requestTemplate.body(payloadJson);
@@ -74,12 +79,16 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
         String responseBody = new String(bodyStream);
         String encryptionKey = response.request().headers().get(StringValues.ENC_KEY_PLACEHOLDER)
                 .stream().findFirst().orElse(null);
+
+        HttpServletRequest servletRequest = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        String encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+
         Collection<String> headerValues  = response.request().headers().get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
         boolean encryptionRequired = Objects.isNull(headerValues) || headerValues.isEmpty() || headerValues.stream().anyMatch(value -> value.equalsIgnoreCase("true"));
         if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey) && encryptionRequired){
             EncryptionPayload encryptionPayload = objectMapper.readValue(responseBody, EncryptionPayload.class);
             String encryptedResponse = encryptionPayload.getResponse();
-            String decryptedResponseBody = encryptionService.decryptWithKey(encryptedResponse, encryptionKey);
+            String decryptedResponseBody = encryptionService.decryptWithKey(encryptionAlgorithm, encryptedResponse, encryptionKey);
 //            feignLogger.logHttpFeignResponse(response, responseBody, decryptedResponseBody);
             return objectMapper.readValue(decryptedResponseBody, objectMapper.constructType(type));
         }else {

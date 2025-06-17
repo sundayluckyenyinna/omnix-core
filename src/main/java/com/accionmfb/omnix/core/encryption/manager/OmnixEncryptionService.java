@@ -5,25 +5,23 @@ import com.accionmfb.omnix.core.encryption.EncryptionAlgorithmService;
 import lombok.SneakyThrows;
 
 public interface OmnixEncryptionService {
-    String encrypt(String stringToEncrypt);
+    String encrypt(String algorithm, String stringToEncrypt);
 
-    String encryptWithKey(String stringToEncrypt, String encKey);
+    String encryptWithKey(String algorithm, String stringToEncrypt, String encKey);
 
-    String encrypt(Object object);
-
-    @SneakyThrows
-    String encryptWithKey(Object object, String encKey);
-
-    String decrypt(String stringToDecrypt);
-
-    String decryptWithKey(String stringToDecrypt, String encKey);
-
-    String decrypt(Object object);
+    String encrypt(String algorithm, Object object);
 
     @SneakyThrows
-    String decryptWithKey(Object object, String encKey);
+    String encryptWithKey(String algorithm, Object object, String encKey);
 
-    String getActiveAlgorithm();
+    String decrypt(String algorithm, String stringToDecrypt);
+
+    String decryptWithKey(String algorithm, String stringToDecrypt, String encKey);
+
+    String decrypt(String algorithm, Object object);
+
+    @SneakyThrows
+    String decryptWithKey(String algorithm, Object object, String encKey);
 
     EncryptionAlgorithmService getActiveEncryptionAlgorithmService(String algorithm);
 }

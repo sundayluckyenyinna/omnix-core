@@ -134,8 +134,10 @@ public class OmnixRestControllerAdvice {
 
         String encryptionKey = (String) servletRequest.getAttribute(StringValues.ENC_KEY_PLACEHOLDER);
         Boolean encryptionRequired = (Boolean) servletRequest.getAttribute(StringValues.APP_USER_REQUIRE_ENCY_KEY);
+        String encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+
         if(encryptionProperties.isEnableEncryption() && Objects.nonNull(encryptionKey) && encryptionRequired){
-            String encryptedResponse = omnixEncryptionService.encryptWithKey(responseJson, encryptionKey);
+            String encryptedResponse = omnixEncryptionService.encryptWithKey(encryptionAlgorithm, responseJson, encryptionKey);
             EncryptionPayload encryptionPayload = EncryptionPayload.withResponse(encryptedResponse);
             responseJson = objectMapper.writeValueAsString(encryptionPayload);
         }

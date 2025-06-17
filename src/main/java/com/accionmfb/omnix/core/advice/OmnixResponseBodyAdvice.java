@@ -61,6 +61,8 @@ public class OmnixResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
         String encryptionKey = (String) servletRequest.getAttribute(StringValues.ENC_KEY_PLACEHOLDER);
         Boolean encryptionRequired = (Boolean) servletRequest.getAttribute(StringValues.APP_USER_REQUIRE_ENCY_KEY);
+        String encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+
         Method controllerMethod = returnType.getMethod();
         if(Objects.nonNull(body)) {
             if (encryptionProperties.isEnableEncryption() && Objects.nonNull(encryptionKey) && encryptionRequired) {
@@ -70,7 +72,7 @@ public class OmnixResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                         return body;
                     }
                 }
-                String encryptedResponse = encryptionService.encryptWithKey(body, encryptionKey);
+                String encryptedResponse = encryptionService.encryptWithKey(encryptionAlgorithm, body, encryptionKey);
                 EncryptionPayload payload = new EncryptionPayload();
                 payload.setResponse(encryptedResponse);
                 responseObject = payload;
