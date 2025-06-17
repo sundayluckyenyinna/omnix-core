@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Base64;
 
 import static com.accionmfb.omnix.core.util.OmnixCoreApplicationUtil.returnOrdefault;
