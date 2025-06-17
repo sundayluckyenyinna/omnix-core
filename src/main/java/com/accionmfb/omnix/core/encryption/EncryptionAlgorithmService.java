@@ -24,8 +24,4 @@ public interface EncryptionAlgorithmService {
 
     EncryptionConfig getEncryptionConfiguration();
     boolean supports(String algorithm);
-
-    IvParameterSpec getIvParameterSpec();
-
-    IvParameterSpec generateNewIvSpec();
 }
