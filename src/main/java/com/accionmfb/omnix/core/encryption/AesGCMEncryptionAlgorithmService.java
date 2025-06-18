@@ -10,13 +10,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -51,43 +50,29 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
     @Override
     public String encryptWithKey(String stringToEncrypt, String encKey) {
         try {
-            byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);
-            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
+            // Generate random IV
+            byte[] ivBytes = new byte[12];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(ivBytes);
+
+            // Step 1: Convert the plain key (32-byte) and Base64 IV (16 bytes) to byte arrays
+            byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);  // Key is a 32-byte plain string
+
+            // Step 2: Create SecretKeySpec from the provided 32-byte key
+            SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "AES");
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-
-            // Generate a 12-byte IV for GCM
-            byte[] iv = new byte[12];
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(iv);
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv); // 128-bit tag
-
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, ivBytes);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec);
 
-            byte[] plainText = stringToEncrypt.getBytes(StandardCharsets.UTF_8);
-            byte[] cipherTextWithTag = cipher.doFinal(plainText);
+            // Send the IV to the response headers
+            httpServletResponse.setHeader(IV_PARAMETER_KEY, Base64.getEncoder().encodeToString(ivBytes));
 
-            System.out.println("Cypher text with tag: ============>" + Base64.getEncoder().encodeToString(cipherTextWithTag));
-
-            // Separate cipherText and tag
-            int tagLength = 16; // 128 bits
-            int ctLength = cipherTextWithTag.length - tagLength;
-
-            byte[] tag = Arrays.copyOfRange(cipherTextWithTag, ctLength, cipherTextWithTag.length);
-
-            // Encode everything
-            String base64CipherText = Base64.getEncoder().encodeToString(cipherTextWithTag);
-            String base64IV         = Base64.getEncoder().encodeToString(iv);
-            String base64Tag        = Base64.getEncoder().encodeToString(tag);
-
-            // Set IV and TAG in response headers
-            httpServletResponse.setHeader(IV_PARAMETER_KEY, base64IV);
-            httpServletResponse.setHeader(AUTH_TAG_PARAMETER_KEY, base64Tag);
-
-            return base64CipherText;
-
-        } catch (Exception ex) {
-            log.error("AES-GCM encryption failed: {}", ex.getMessage(), ex);
+            // Encrypt the plaintext
+            byte[] encryptedBytes = cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -105,41 +90,34 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
     @Override
     public String decryptWithKey(String stringToDecrypt, String encKey) {
         try {
-            byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
-            SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+            // Get the base64 IV
+            String iv = httpServletRequest.getHeader(IV_PARAMETER_KEY);
 
-            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
-            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance, "AES/GCM/NoPadding"));
+            // Step 1: Convert the plain key (32-byte) and Base64 IV (16 bytes) to byte arrays
+            byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);  // Key is a 32-byte plain string
+            byte[] ivBytes = Base64.getDecoder().decode(iv);  // Decode the 16-character Base64 encoded IV
 
-            // Get IV and tag from headers
-            String base64IV = httpServletRequest.getHeader(IV_PARAMETER_KEY);
-            String base64Tag = httpServletRequest.getHeader(AUTH_TAG_PARAMETER_KEY);
+            // Step 2: Create SecretKeySpec from the provided 32-byte key
+            SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "AES");
 
-            if (base64IV == null || base64Tag == null) {
-                log.error("Missing IV or Auth Tag in request headers");
-                return null;
-            }
-
-            byte[] iv = Base64.getDecoder().decode(base64IV);
-            byte[] tag = Base64.getDecoder().decode(base64Tag);
-
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            // Step 3: Initialize Cipher for AES/GCM/NoPadding decryption
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, ivBytes);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec);
 
-            byte[] cipherText = Base64.getDecoder().decode(stringToDecrypt);
+            // Step 4: Decode the Base64-encoded ciphertext
+            byte[] encryptedBytes = Base64.getDecoder().decode(stringToDecrypt);
 
-            // Reconstruct cipherTextWithTag: ciphertext || tag
-            byte[] cipherTextWithTag = new byte[cipherText.length + tag.length];
-            System.arraycopy(cipherText, 0, cipherTextWithTag, 0, cipherText.length);
-            System.arraycopy(tag, 0, cipherTextWithTag, cipherText.length, tag.length);
+            // Step 5: Decrypt the ciphertext to get the original plaintext
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
 
-            byte[] plainText = cipher.doFinal(cipherTextWithTag);
-            return new String(plainText, StandardCharsets.UTF_8);
+            // Step 6: Return the decrypted plaintext as a string
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
 
-        } catch (Exception ex) {
-            log.error("AES-GCM decryption failed: {}", ex.getMessage(), ex);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -195,121 +173,72 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
         return algorithm.equalsIgnoreCase(EncryptionAlgorithm.AES_GCM.name());
     }
 
-
     public static String encryptWithKeyStatic(String stringToEncrypt, String encKey) {
         try {
-            byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);
-            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
+
+            byte[] ivBytes = new byte[12];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(ivBytes);
+
+            // Step 1: Convert the plain key (32-byte) and Base64 IV (16 bytes) to byte arrays
+            byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);  // Key is a 32-byte plain string
+
+            // Step 2: Create SecretKeySpec from the provided 32-byte key
+            SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "AES");
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-
-            // Generate a 12-byte IV for GCM
-            byte[] iv = new byte[12];
-            SecureRandom random = new SecureRandom();
-            random.nextBytes(iv);
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv); // 128-bit tag
-
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, ivBytes);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmSpec);
 
-            byte[] plainText = stringToEncrypt.getBytes(StandardCharsets.UTF_8);
-            byte[] cipherTextWithTag = cipher.doFinal(plainText);
-
-            System.out.println("Cypher text with tag: ============>" + Base64.getEncoder().encodeToString(cipherTextWithTag));
-
-            // Separate cipherText and tag
-            int tagLength = 16; // 128 bits
-            int ctLength = cipherTextWithTag.length - tagLength;
-
-            byte[] tag = Arrays.copyOfRange(cipherTextWithTag, ctLength, cipherTextWithTag.length);
-
-            // Encode everything
-            String base64CipherText = Base64.getEncoder().encodeToString(cipherTextWithTag);
-            String base64IV         = Base64.getEncoder().encodeToString(iv);
-            String base64Tag        = Base64.getEncoder().encodeToString(tag);
-
-            return base64CipherText;
-
-        } catch (Exception ex) {
-            log.error("AES-GCM encryption failed: {}", ex.getMessage(), ex);
+            // Encrypt the plaintext
+            byte[] encryptedBytes = cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
-    public static String decryptWithKeyStatic(String stringToDecrypt, String encKey) {
+    public static String decryptWithKeyStatic(String stringToDecrypt, String encKey, String iv) {
         try {
-            byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
-            SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+            // Step 1: Convert the plain key (32-byte) and Base64 IV (16 bytes) to byte arrays
+            byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);  // Key is a 32-byte plain string
+            byte[] ivBytes = Base64.getDecoder().decode(iv);  // Decode the 16-character Base64 encoded IV
 
+            // Step 2: Create SecretKeySpec from the provided 32-byte key
+            SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "AES");
+
+            // Step 3: Initialize Cipher for AES/GCM/NoPadding decryption
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-
-            // Get IV and tag from headers
-            String base64IV = "yDrN+1Z4rgXxI+1l";
-
-            byte[] iv = Base64.getDecoder().decode(base64IV);
-            byte[] tag = Base64.getDecoder().decode("lxebf+Pm4X6XqcUxOwNLDg==");
-
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, ivBytes);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec);
 
-            byte[] cipherText = Base64.getDecoder().decode(stringToDecrypt);
+            // Step 4: Decode the Base64-encoded ciphertext
+            byte[] encryptedBytes = Base64.getDecoder().decode(stringToDecrypt);
 
-            // Reconstruct cipherTextWithTag: ciphertext || tag
-            byte[] cipherTextWithTag = new byte[cipherText.length + tag.length];
-            System.arraycopy(cipherText, 0, cipherTextWithTag, 0, cipherText.length);
-            System.arraycopy(tag, 0, cipherTextWithTag, cipherText.length, tag.length);
+            // Step 5: Decrypt the ciphertext to get the original plaintext
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
 
-            byte[] plainText = cipher.doFinal(cipherText);
-            return new String(plainText, StandardCharsets.UTF_8);
+            // Step 6: Return the decrypted plaintext as a string
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
 
-        } catch (Exception ex) {
-            log.error("AES-GCM decryption failed: {}", ex.getMessage(), ex);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
-    public static String decr(String string, String ivStr) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        byte[] keyBytes = "77T18925x42783H7508302949Q618671".getBytes(StandardCharsets.UTF_8);
-        SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    public static void main(String[] args) throws JSONException {
+        String iv = "eG90XG9uanh2aHdZa3dbcA==";
+        String encKey = "77T18925x42783H7508302949Q618671";
+        String text = "X4h4e/mjomrIkVqY3+N6VDR41f9beoBSqIz2wnxHeAdXl2beheBN0jZJk3t307kujfv4cTvUCYObQNxPUyq5OuuW3JO+sxjvBzBHT6dcMSCPi6h9w961hagknVJcUhage+FwMrh98WwhqLatlXu+z6pRJB0SF/y15A5zbAB7";
+        System.out.println(decryptWithKeyStatic(text, encKey, iv));
 
-        byte[] iv = Base64.getDecoder().decode(ivStr);
-        GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv); // 128-bit tag length
 
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec);
-
-        byte[] cypherText = Base64.getDecoder().decode(string);
-        byte[] plainTextBytes = cipher.doFinal(cypherText);
-        String decryptedText = new String(plainTextBytes, StandardCharsets.UTF_8);
-
-        System.out.println("Decrypted: " + decryptedText);
-        return decryptedText;
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", "Courage");
+        jsonObject.put("hobby", "disturbing my life!");
+        String data = jsonObject.toString();
+        System.out.println(encryptWithKeyStatic(data, encKey));
     }
-
-    public static String decryptFromFE(String cipherTextBase64, String ivBase64, String tagBase64) throws Exception {
-        byte[] keyBytes = "77T18925x42783H7508302949Q618671".getBytes(StandardCharsets.UTF_8); // 32 bytes = AES-256
-        SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
-
-        byte[] iv = Base64.getDecoder().decode(ivBase64);
-        byte[] cipherText = Base64.getDecoder().decode(cipherTextBase64);
-        byte[] tag = Base64.getDecoder().decode(tagBase64);
-
-        // Combine cipherText + tag
-        byte[] cipherTextWithTag = new byte[cipherText.length + tag.length];
-        System.arraycopy(cipherText, 0, cipherTextWithTag, 0, cipherText.length);
-        System.arraycopy(tag, 0, cipherTextWithTag, cipherText.length, tag.length);
-
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        GCMParameterSpec spec = new GCMParameterSpec(128, iv); // 128-bit tag
-
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
-        byte[] plainTextBytes = cipher.doFinal(cipherTextWithTag);
-
-        return new String(plainTextBytes, StandardCharsets.UTF_8);
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        System.out.println(decryptFromFE("DF4pMdRnEKaGvJJtUx7yUXlLVJEQhGdbbyI1dOdubQyjhRyqjhnZWkJc1G7DYdAaUtHFm6EV+JWTMpkaAHSi5PckN0s+Zfb4kdsM8ASwAGo=", "yDrN+1Z4rgXxI+1l", "lxebf+Pm4X6XqcUxOwNLDg=="));
-    }
-
 }
