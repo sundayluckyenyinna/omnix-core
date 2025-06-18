@@ -90,11 +90,13 @@ public class OmnixRequestBodyAdvice implements RequestBodyAdvice {
                    writeEncryptionViolationResponseToClient();
                }else{
                    String decryptedRequest = encryptionService.decryptWithKey(encryptionAlgorithm, encryptionPayload.getRequest(), encryptionKey);
+                   log.info("Decryption result: {}", decryptedRequest);
                    Object requestBodyObject = objectMapper.readValue(decryptedRequest, tClazz);
                    log.info("Decrypted request: {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(requestBodyObject));
                    return requestBodyObject;
                }
            }catch(Exception exception){
+               exception.printStackTrace();
                log.error("Exception occurred while trying to decrypt request body. Exception message is: {}", exception.getMessage());
                writeRequestBodyDecryptionDecipherErrorResponseToClient(exception);
            }
