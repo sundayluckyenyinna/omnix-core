@@ -93,27 +93,11 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
             // Get the base64 IV
             String iv = httpServletRequest.getHeader(IV_PARAMETER_KEY);
 
-            // Step 1: Convert the plain key (32-byte) and Base64 IV (16 bytes) to byte arrays
-            byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);  // Key is a 32-byte plain string
-            byte[] ivBytes = Base64.getDecoder().decode(iv);  // Decode the 16-character Base64 encoded IV
+            System.out.println("x-IV in request: ==============>" + iv);
+            System.out.println("Encryption key in request: =========>" + encKey);
+            System.out.println("String to encrypt: =========>" + stringToDecrypt);
 
-            // Step 2: Create SecretKeySpec from the provided 32-byte key
-            SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(keyBytes, "AES");
-
-            // Step 3: Initialize Cipher for AES/GCM/NoPadding decryption
-            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, ivBytes);
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec);
-
-            // Step 4: Decode the Base64-encoded ciphertext
-            byte[] encryptedBytes = Base64.getDecoder().decode(stringToDecrypt);
-
-            // Step 5: Decrypt the ciphertext to get the original plaintext
-            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
-
-            // Step 6: Return the decrypted plaintext as a string
-            return new String(decryptedBytes, StandardCharsets.UTF_8);
-
+            return decryptWithKeyStatic(stringToDecrypt, encKey, iv);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -229,16 +213,10 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
     }
 
     public static void main(String[] args) throws JSONException {
-        String iv = "eG90XG9uanh2aHdZa3dbcA==";
+        String iv = "eG90XG9uanh2aHdZa3dbcA=="; // eG90XG9uanh2aHdZa3dbcA==
         String encKey = "77T18925x42783H7508302949Q618671";
-        String text = "X4h4e/mjomrIkVqY3+N6VDR41f9beoBSqIz2wnxHeAdXl2beheBN0jZJk3t307kujfv4cTvUCYObQNxPUyq5OuuW3JO+sxjvBzBHT6dcMSCPi6h9w961hagknVJcUhage+FwMrh98WwhqLatlXu+z6pRJB0SF/y15A5zbAB7";
+//        String text = "X4h4e/mjomrIkVqY3+N6VDR41f9beoBSqIz2wnxHeAdXl2beheBN0jZJk3t307kujfv4cTvUCYObQNxPUyq5OuuW3JO+sxjvBzBHT6dcMSCPi6h9w961hagknVJcUhage+FwMrh98WwhqLatlXu+z6pRJB0SF/y15A5zbAB7";
+        String text =  "X4h4e/mjomrIkVqY3+N6VDR41f9beoBSqIz2wnxHeAdXl2beheBN0jZJk3t307kujfv4cTvUCYObQNxPUyq5OuuW3JO+sxjvBzBHT6dcMSCPi6h9w961hagknVJcUhage+FwMrh98WwhqLatlXu+z6pRJB0SF/y15A5zbAB7";
         System.out.println(decryptWithKeyStatic(text, encKey, iv));
-
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("name", "Courage");
-        jsonObject.put("hobby", "disturbing my life!");
-        String data = jsonObject.toString();
-        System.out.println(encryptWithKeyStatic(data, encKey));
     }
 }
