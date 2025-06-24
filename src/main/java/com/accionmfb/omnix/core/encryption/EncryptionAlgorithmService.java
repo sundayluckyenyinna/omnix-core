@@ -13,6 +13,8 @@ public interface EncryptionAlgorithmService {
 
     String decryptWithKey(String stringToDecrypt, String encKey);
 
+    String decryptWithKey(String stringToDecrypt, String encKey, String cipherKey);
+
     String encrypt(Object payload);
 
     String encryptWithKey(Object payload, String encKey);

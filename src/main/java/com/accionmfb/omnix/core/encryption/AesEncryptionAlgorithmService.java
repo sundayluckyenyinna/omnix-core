@@ -106,6 +106,32 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
     }
 
     @Override
+    public String decryptWithKey(String stringToDecrypt, String encKey, String cipherKey) {
+        try {
+            byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
+            SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+
+            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherKey, "AES/CBC/PKCS5Padding"));
+
+            String base64IV = httpServletRequest.getHeader(IV_PARAMETER_KEY);
+            if (base64IV == null) {
+                log.error("IV not provided in request header");
+                return null;
+            }
+            byte[] iv = Base64.getDecoder().decode(base64IV);
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+            byte[] decoded = Base64.getDecoder().decode(stringToDecrypt);
+            return new String(cipher.doFinal(decoded), StandardCharsets.UTF_8);
+
+        } catch (Exception ex) {
+            log.error("Exception occurred while trying to decrypt value: {}", ex.getMessage(), ex);
+        }
+        return null;
+    }
+
+    @Override
     public String encrypt(Object payload) {
         try {
             String textToEncrypt = objectMapper.writeValueAsString(payload);

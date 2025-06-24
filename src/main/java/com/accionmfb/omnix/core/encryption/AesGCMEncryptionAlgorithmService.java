@@ -67,6 +67,9 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
 
             // Send the IV to the response headers
             httpServletResponse.setHeader(IV_PARAMETER_KEY, Base64.getEncoder().encodeToString(ivBytes));
+            httpServletRequest.setAttribute(IV_PARAMETER_KEY, Base64.getEncoder().encodeToString(ivBytes));
+
+            System.out.println(">>>>>>>>>>1>>>>>>>>>>>> "+ Base64.getEncoder().encodeToString(ivBytes));
 
             // Encrypt the plaintext
             byte[] encryptedBytes = cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8));
@@ -92,6 +95,21 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
         try {
             // Get the base64 IV
             String iv = httpServletRequest.getHeader(IV_PARAMETER_KEY);
+
+            System.out.println("x-IV in request: ==============>" + iv);
+            System.out.println("Encryption key in request: =========>" + encKey);
+            System.out.println("String to encrypt: =========>" + stringToDecrypt);
+
+            return decryptWithKeyStatic(stringToDecrypt, encKey, iv);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String decryptWithKey(String stringToDecrypt, String encKey, String iv) {
+        try {
 
             System.out.println("x-IV in request: ==============>" + iv);
             System.out.println("Encryption key in request: =========>" + encKey);
@@ -184,6 +202,7 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
     }
 
     public static String decryptWithKeyStatic(String stringToDecrypt, String encKey, String iv) {
+        System.out.println(">>>>>>>>>>2>>>>>>>>>>>> "+ iv);
         try {
             // Step 1: Convert the plain key (32-byte) and Base64 IV (16 bytes) to byte arrays
             byte[] keyBytes = encKey.getBytes(StandardCharsets.UTF_8);  // Key is a 32-byte plain string
