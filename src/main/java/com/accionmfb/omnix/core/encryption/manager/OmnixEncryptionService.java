@@ -18,6 +18,8 @@ public interface OmnixEncryptionService {
 
     String decryptWithKey(String algorithm, String stringToDecrypt, String encKey);
 
+    String decryptWithKey(String algorithm, String stringToDecrypt, String encKey, String iv);
+
     String decrypt(String algorithm, Object object);
 
     @SneakyThrows

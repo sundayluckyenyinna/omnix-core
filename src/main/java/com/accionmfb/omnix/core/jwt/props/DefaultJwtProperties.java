@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 public class DefaultJwtProperties {
     private String jwtKey = "j3H5Ld5nYmGWyULy6xwpOgfSH++NgKXnJMq20vpfd+8=t";
     private String idTokenKey = "idToken";
-    private String appUserTokenInHr = "24";
+    private String appUserTokenInHr = "2"; // 24 before
     private String idTokenExpiryInMin = "30";
     private String adminUserTokenExpirationInMin = "30";
 }

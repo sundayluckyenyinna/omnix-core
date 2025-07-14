@@ -431,20 +431,25 @@ public class CommonUtil {
     }
 
     public static boolean getFileSizeFromBase64(String base64String) {
-        int paddingCount = 0;
-        if (base64String.endsWith(StringValues.EQUALS+StringValues.EQUALS)) {
-            paddingCount = 2;
-        } else if (base64String.endsWith(StringValues.EQUALS)) {
-            paddingCount = 1;
-        } else{
+
+        base64String = base64String.replaceAll("\\s+", "");
+        if (!base64String.matches("^[A-Za-z0-9+/=]*$")) {
             throw OmnixApiException.newInstance()
                     .withCode(ResponseCode.BAD_REQUEST)
-                    .withMessage("Invalid file uploaded");
+                    .withMessage("Invalid Base64 string format.");
+        }
+        int paddingCount = 0;
+        if (base64String.endsWith("==")) {
+            paddingCount = 2;
+        } else if (base64String.endsWith("=")) {
+            paddingCount = 1;
         }
         int base64Length = base64String.length();
-        int size = ((base64Length * 3) / 4 - paddingCount);
-        return size <= MAX_FILE_SIZE;
+        int decodedSize = (base64Length * 3) / 4 - paddingCount;
+
+        return decodedSize <= MAX_FILE_SIZE;
     }
+
 
     public static boolean containsSpecialCharacter(String value){
         if(isNullOrEmpty(value)){

@@ -1,5 +1,6 @@
 package com.accionmfb.omnix.core.encryption;
 
+
 public interface EncryptionAlgorithmService {
 
     String encrypt(String stringToEncrypt);
@@ -11,6 +12,8 @@ public interface EncryptionAlgorithmService {
     String decrypt(String stringToDecrypt);
 
     String decryptWithKey(String stringToDecrypt, String encKey);
+
+    String decryptWithKey(String stringToDecrypt, String encKey, String cipherKey);
 
     String encrypt(Object payload);
 

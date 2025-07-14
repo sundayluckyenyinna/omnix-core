@@ -18,6 +18,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -43,52 +44,97 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
-        if(requestTemplate.body() != null){
+        if (requestTemplate.body() != null) {
             byte[] rawRequestBodyBytes = requestTemplate.body();
             String rawRequestBodyJson = new String(rawRequestBodyBytes);
-            try{
-                String encryptionKey = requestTemplate.headers().get(StringValues.ENC_KEY_PLACEHOLDER)
-                        .stream().findFirst().orElse(null);
+            HttpServletRequest servletRequest=null;
+            String encryptionAlgorithm="";
+            try {
+                String encryptionKey = requestTemplate.headers()
+                        .get(StringValues.ENC_KEY_PLACEHOLDER)
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+                try {
+                    servletRequest = ((ServletRequestAttributes) RequestContextHolder
+                            .getRequestAttributes()).getRequest();
+                    encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+                } catch (Exception e) {
+                    log.info("Fall back");
+                    encryptionAlgorithm =requestTemplate.headers()
+                            .get(StringValues.APP_USER_ENCRYPTION_ALGORITHM).stream().findFirst().orElse(null);
+                    log.info("Picked: {}", encryptionAlgorithm);
+                }
 
-                HttpServletRequest servletRequest = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-                String encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+                Collection<String> headerValues = requestTemplate.headers()
+                        .get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
 
-                Collection<String> headerValues  = requestTemplate.headers().get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
-                boolean encryptionRequired = Objects.isNull(headerValues) || headerValues.isEmpty() || headerValues.stream().anyMatch(value -> value.equalsIgnoreCase("true"));
-                if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey) && encryptionRequired){
+                boolean encryptionRequired = Objects.isNull(headerValues)
+                        || headerValues.isEmpty()
+                        || headerValues.stream().anyMatch(value -> value.equalsIgnoreCase("true"));
+
+                if (encryptionProperties.isEnableEncryption()
+                        && !CommonUtil.isNullOrEmpty(encryptionKey)
+                        && encryptionRequired) {
+
                     String encryptedRequest = encryptionService.encryptWithKey(encryptionAlgorithm, rawRequestBodyJson, encryptionKey);
                     EncryptionPayload payload = EncryptionPayload.withRequest(encryptedRequest);
                     String payloadJson = objectMapper.writeValueAsString(payload);
+
+                   try {
+                       log.info(">>>>>>>>>>>>>3>>>>>>>>>>>>>>" + servletRequest.getHeader("X-IV"));
+                       log.info(">>>>>>>>>>>>>4>>>>>>>>>>>>>>" + (String) servletRequest.getAttribute("X-IV"));
+                       String iv = CommonUtil.returnOrDefault((String) servletRequest.getAttribute("X-IV"), servletRequest.getHeader("X-IV"));
+
+                       log.info("Print iv value: {}", iv);
+
+                       if (iv != null) {
+                           log.info("Catch you Iv is present: ------- {}", iv);
+                           requestTemplate.header("X-IV", iv);
+                       }
+                   } catch (Exception e) {
+                       log.info("Iv is not present");
+                   }
+
                     requestTemplate.body(payloadJson);
-//                    feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, payloadJson);
-                }else{
-//                    feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, StringValues.EMPTY_STRING);
+                    // Optionally log encrypted payload
+                    // feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, payloadJson);
+                } else {
+                    // feignLogger.logHttpFeignRequest(requestTemplate, rawRequestBodyJson, StringValues.EMPTY_STRING);
                 }
-            }catch (Exception exception){
+            } catch (Exception exception) {
                 log.error("Exception occurred while intercepting feign request body");
                 log.error("Exception message is: {}", exception.getMessage());
             }
-        }else{
-//            feignLogger.logHttpFeignRequest(requestTemplate, StringValues.EMPTY_STRING, StringValues.EMPTY_STRING);
         }
     }
+
 
     @Override
     public Object decode(final Response response, Type type) throws IOException, FeignException {
         byte[] bodyStream = response.body().asInputStream().readAllBytes();
         String responseBody = new String(bodyStream);
+        HttpServletRequest servletRequest;
+        String encryptionAlgorithm="";
+        String iv=null;
         String encryptionKey = response.request().headers().get(StringValues.ENC_KEY_PLACEHOLDER)
                 .stream().findFirst().orElse(null);
-
-        HttpServletRequest servletRequest = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-        String encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+        try {
+            iv = response.headers().get("X-IV").stream().findFirst().orElse(null);
+            log.info("Print iv value here used: {}", iv);
+            servletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
+        } catch (Exception e) {
+            encryptionAlgorithm=response.request().headers().get(StringValues.APP_USER_ENCRYPTION_ALGORITHM)
+                    .stream().findFirst().orElse(null);
+        }
 
         Collection<String> headerValues  = response.request().headers().get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
         boolean encryptionRequired = Objects.isNull(headerValues) || headerValues.isEmpty() || headerValues.stream().anyMatch(value -> value.equalsIgnoreCase("true"));
         if(encryptionProperties.isEnableEncryption() && !CommonUtil.isNullOrEmpty(encryptionKey) && encryptionRequired){
             EncryptionPayload encryptionPayload = objectMapper.readValue(responseBody, EncryptionPayload.class);
             String encryptedResponse = encryptionPayload.getResponse();
-            String decryptedResponseBody = encryptionService.decryptWithKey(encryptionAlgorithm, encryptedResponse, encryptionKey);
+            String decryptedResponseBody = iv==null? encryptionService.decryptWithKey(encryptionAlgorithm, encryptedResponse, encryptionKey):encryptionService.decryptWithKey(encryptionAlgorithm, encryptedResponse, encryptionKey, iv);
 //            feignLogger.logHttpFeignResponse(response, responseBody, decryptedResponseBody);
             return objectMapper.readValue(decryptedResponseBody, objectMapper.constructType(type));
         }else {

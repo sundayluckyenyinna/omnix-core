@@ -1,5 +1,7 @@
 package com.accionmfb.omnix.core.commons;
 
+import org.apache.kafka.common.protocol.types.Field;
+
 public interface StringValues {
 
     String EMPTY_STRING = "";
@@ -44,6 +46,7 @@ public interface StringValues {
     String APP_USER_KEY = "appUser";
     String ENC_KEY_PLACEHOLDER = "encKey";
     String ENC_CIPHER_KEY = "ENC_CIPHER_KEY";
+    String ENC_CIPHER_IV = "ENC_CIPHER_IV";
     String APP_USER_REQUIRE_ENCY_KEY = "ENC_REQUIRED";
     String APP_USER_ENCRYPTION_ALGORITHM = "APP_USER_ENCRYPTION_ALGORITHM";
     String REQUEST_BODY_KEY = "REQUEST_BODY";

@@ -79,6 +79,14 @@ public class SimpleOmnixEncryptionService implements OmnixEncryptionService{
     }
 
     @Override
+    public String decryptWithKey(String algorithm, String stringToDecrypt, String encKey, String iv) {
+        if(Objects.nonNull(stringToDecrypt)){
+            return getActiveEncryptionAlgorithmService(algorithm).decryptWithKey(stringToDecrypt, encKey, iv);
+        }
+        return StringValues.EMPTY_STRING;
+    }
+
+    @Override
     @SneakyThrows
     public String decrypt(String algorithm, Object object) {
         if(Objects.nonNull(object)){

@@ -6,7 +6,6 @@ import com.accionmfb.omnix.core.commons.StringValues;
 import com.accionmfb.omnix.core.exception.OmnixApiException;
 import com.accionmfb.omnix.core.jwt.props.DefaultJwtProperties;
 import com.accionmfb.omnix.core.localsource.core.LocalParamStorage;
-import com.accionmfb.omnix.core.util.CommonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -16,8 +15,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -114,25 +113,36 @@ public class JwtTokenUtility implements JwtTokenUtil{
 
     @Override
     public boolean isExpiredToken(String token){
-        return false;
+        try {
+            Date expiration = Jwts.parser()
+                    .setSigningKey(defaultJwtProperties.getJwtKey())
+                    .parseClaimsJws(cleanToken(token))
+                    .getBody()
+                    .getExpiration();
+            return Objects.nonNull(expiration) && expiration.before(Date.from(Instant.now()));
+        }catch (ExpiredJwtException exception){
+            throw OmnixApiException.newInstance()
+                    .withCode(ResponseCode.INVALID_CREDENTIALS)
+                    .withStatusCode(HttpStatus.UNAUTHORIZED.value())
+                    .withMessage("Bearer token expired");
+        }
     }
 
     @Override
     public LocalDateTime getTokenIssuedDateTime(String token){
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(getClaimsFromToken(token).get("iat"))), ZoneId.systemDefault());
+        return getClaimsFromToken(token).getIssuedAt().toInstant().atZone(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE)).toLocalDateTime();
     }
 
     @Override
     public LocalDateTime getExpirationDateTimeFromToken(String token){
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(getClaimsFromToken(token).get("exp"))), ZoneId.systemDefault());
+        return getClaimsFromToken(token).getExpiration().toInstant().atZone(ZoneId.of(StringValues.AFRICA_LAGOS_ZONE)).toLocalDateTime();
     }
 
     @SneakyThrows
     public String getClaimValueFromKey(String claimKey, String token){
         try {
             token = cleanToken(token);
-            Map<String, String> claims = getClaimsFromToken(token);
-            objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
+            Claims claims = getClaimsFromToken(token);
             String base64CredentialKey = Base64.getEncoder().encodeToString(JWT_CRED_KEY.getBytes(StandardCharsets.UTF_8));
             String base64Credentials = (String) claims.get(base64CredentialKey);
             String bareCredentialJson = new String(Base64.getDecoder().decode(base64Credentials));
@@ -146,21 +156,15 @@ public class JwtTokenUtility implements JwtTokenUtil{
         }
         catch (Exception exception){
             log.error("Exception occurred while trying to extract claim from JWT. Exception message is: {}", exception.getMessage());
-           return null;
+            return null;
         }
     }
 
-    public Map<String, String> getClaimsFromToken(String token){
-        try {
-            String[] parts = token.split("\\.");
-            String payload = new String(Base64.getDecoder().decode(parts[1].getBytes(StandardCharsets.UTF_8)));
-            JSONObject jsonObject = new JSONObject(payload);
-            return objectMapper.readValue(jsonObject.toString(), new TypeReference<HashMap<String, String>>() {});
-        }catch (Exception exception){
-            System.out.println(exception.getMessage());
-            return null;
-        }
-
+    public Claims getClaimsFromToken(String token){
+        return Jwts.parser()
+                .setSigningKey(defaultJwtProperties.getJwtKey())
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private Claims generateAppUserClaims(String apiId, String channel){
