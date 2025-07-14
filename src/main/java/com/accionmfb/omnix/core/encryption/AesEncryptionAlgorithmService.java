@@ -49,20 +49,10 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
         try {
             byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            byte[] iv = new byte[16];
-            SecureRandom secureRandom = new SecureRandom();
-            secureRandom.nextBytes(iv);
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encrypted = cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.UTF_8));
-            String base64Encrypted = Base64.getEncoder().encodeToString(encrypted);
-            String base64IV = Base64.getEncoder().encodeToString(iv);
-
-            httpServletResponse.setHeader(IV_PARAMETER_KEY, base64IV);
-            return base64Encrypted;
+            return Base64.getEncoder().encodeToString(encrypted);
         }catch (Exception e){
             return null;
         }
@@ -83,19 +73,8 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
         try {
             byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-
-            String cipherInstance = (String) httpServletRequest.getAttribute(StringValues.ENC_CIPHER_KEY);
-            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherInstance, "AES/CBC/PKCS5Padding"));
-
-            String base64IV = httpServletRequest.getHeader(IV_PARAMETER_KEY);
-            if (base64IV == null) {
-                log.error("IV not provided in request header");
-                return null;
-            }
-            byte[] iv = Base64.getDecoder().decode(base64IV);
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] decoded = Base64.getDecoder().decode(stringToDecrypt);
             return new String(cipher.doFinal(decoded), StandardCharsets.UTF_8);
 
@@ -110,18 +89,8 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
         try {
             byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-
-            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherKey, "AES/CBC/PKCS5Padding"));
-
-            String base64IV = httpServletRequest.getHeader(IV_PARAMETER_KEY);
-            if (base64IV == null) {
-                log.error("IV not provided in request header");
-                return null;
-            }
-            byte[] iv = Base64.getDecoder().decode(base64IV);
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherKey, "AES/ECB/PKCS5Padding"));
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] decoded = Base64.getDecoder().decode(stringToDecrypt);
             return new String(cipher.doFinal(decoded), StandardCharsets.UTF_8);
 
@@ -181,6 +150,6 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
 
     @Override
     public boolean supports(String algorithm) {
-        return algorithm.equalsIgnoreCase(EncryptionAlgorithm.AES_CBC.name());
+        return algorithm.equalsIgnoreCase(EncryptionAlgorithm.AES.name());
     }
 }

@@ -163,7 +163,7 @@ public class AesGCMEncryptionAlgorithmService implements EncryptionAlgorithmServ
     @Override
     public EncryptionConfig getEncryptionConfiguration() {
         return EncryptionConfig.builder()
-                .encryptionAlgorithm(EncryptionAlgorithm.AES.name())
+                .encryptionAlgorithm(EncryptionAlgorithm.AES_GCM.name())
                 .encryptionKey(properties.getAesEncryptionKey())
                 .publicKeyFile("N/A")
                 .privateKeyFile("N/A")
