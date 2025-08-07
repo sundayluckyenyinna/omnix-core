@@ -125,8 +125,9 @@ public class OmnixFeignClientInterceptor extends SpringDecoder implements Reques
             servletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
             encryptionAlgorithm = (String) servletRequest.getAttribute(StringValues.APP_USER_ENCRYPTION_ALGORITHM);
         } catch (Exception e) {
+            log.info("Fall back to AES");
             encryptionAlgorithm=response.request().headers().get(StringValues.APP_USER_ENCRYPTION_ALGORITHM)
-                    .stream().findFirst().orElse(null);
+                    .stream().findFirst().orElse("AES");
         }
 
         Collection<String> headerValues  = response.request().headers().get(StringValues.APP_USER_REQUIRE_ENCY_KEY);
