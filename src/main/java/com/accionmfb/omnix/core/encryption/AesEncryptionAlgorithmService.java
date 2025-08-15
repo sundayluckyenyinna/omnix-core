@@ -89,7 +89,7 @@ public class AesEncryptionAlgorithmService implements EncryptionAlgorithmService
         try {
             byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherKey, "AES/ECB/PKCS5Padding"));
+            Cipher cipher = Cipher.getInstance( "AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] decoded = Base64.getDecoder().decode(stringToDecrypt);
             return new String(cipher.doFinal(decoded), StandardCharsets.UTF_8);
