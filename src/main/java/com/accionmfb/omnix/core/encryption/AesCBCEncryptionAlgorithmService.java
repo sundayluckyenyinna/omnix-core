@@ -115,7 +115,7 @@ public class AesCBCEncryptionAlgorithmService implements EncryptionAlgorithmServ
             byte[] key = encKey.getBytes(StandardCharsets.UTF_8);
             SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 
-            Cipher cipher = Cipher.getInstance(CommonUtil.returnOrDefault(cipherKey, "AES/CBC/PKCS5Padding"));
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
             String base64IV = httpServletRequest.getHeader(IV_PARAMETER_KEY);
             if (base64IV == null) {
