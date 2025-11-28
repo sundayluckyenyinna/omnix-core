@@ -10,6 +10,7 @@ public enum AuditAction {
     ASSIGN_ROLE("Assign role to user"),
     CHANGE_PASSWORD("Change user password"),
     DELETE_ROLE("Delete role from system"),
+    ADMIN_OVERVIEW("Admin overview/role(s)"),
 
     // User Management
     PLATFORM_USER_LOGIN("User login to platform"),
@@ -18,6 +19,7 @@ public enum AuditAction {
     SET_ROLE_PERMISSIONS("Set permissions for role"),
     CREATE_ROLE_PERMISSION_MAPPING("Create role-permission mapping"),
     DELETE_PERMISSIONS("Delete permissions from role"),
+    VIEW_USER_MANAGEMENT("View user management overview/details"),
 
     // Authentication & Security
     OTP_REQUEST("Request OTP for verification"),
@@ -35,6 +37,7 @@ public enum AuditAction {
     REMOVE_CUSTOMER_RESTRICTION("Remove restriction from customer account"),
     UPDATE_CUSTOMER_KYC_TIER("Update customer KYC tier level"),
     UPDATE_CUSTOMER_LIMITS("Update customer transaction limits"),
+    VIEW_CUSTOMER("View customer information's/details"),
 
     // Account Management
     CREATE_ACCOUNT("Create new customer account"),
@@ -43,6 +46,7 @@ public enum AuditAction {
     UNFREEZE_ACCOUNT("Unfreeze customer account"),
     CLOSE_ACCOUNT("Close customer account"),
     DELETE_ACCOUNT_MAPPING("Delete account-to-merchant mapping"),
+    VIEW_ACCOUNT("View account information/details"),
 
     // Transaction Management
     PROCESS_TRANSACTION("Process financial transaction"),
@@ -50,6 +54,7 @@ public enum AuditAction {
     APPROVE_TRANSACTION("Approve pending transaction"),
     REJECT_TRANSACTION("Reject pending transaction"),
     REFUND_TRANSACTION("Process transaction refund"),
+    VIEW_TRANSACTION("View transaction/details"),
 
     // Document Management
     UPLOAD_DOCUMENT("Upload customer document"),
@@ -68,6 +73,7 @@ public enum AuditAction {
     PROCESS_REFERRAL_REWARD("Process referral reward payment"),
     APPROVE_REFERRAL_REWARD("Approve referral reward"),
     REJECT_REFERRAL_REWARD("Reject referral reward"),
+    VIEW_REFERRAL("View referral/details"),
 
     // Notification Management
     SEND_NOTIFICATION("Send notification to user"),
@@ -92,6 +98,7 @@ public enum AuditAction {
     PROCESS_LOAN_APPROVAL("Process loan approval or rejection"),
     PROCESS_SCHOOL_FEES_LOAN_APPROVAL("Process school fees loan approval or rejection"),
     PROCESS_BATCH_NIP_RETRY("Process batch NIP retry for loan payments"),
+    VIEW_LOAN("View loan application/details"),
 
     // Savings Management
     TERMINATE_SAVINGS("Terminate customer savings plan"),
@@ -100,6 +107,7 @@ public enum AuditAction {
     PROCESS_SAVINGS_TRANSACTION("Process savings transaction"),
     APPROVE_SAVINGS_WITHDRAWAL("Approve savings withdrawal request"),
     REJECT_SAVINGS_WITHDRAWAL("Reject savings withdrawal request"),
+    VIEW_SAVINGS("View savings application/details"),
 
     // Merchant management
     UNLINK_ACCOUNT_WITH_MERCHANT("Unlink account with merchant")
