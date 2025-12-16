@@ -1,6 +1,7 @@
 package com.accionmfb.omnix.core.util;
 
 import com.accionmfb.omnix.core.commons.StringValues;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
@@ -11,6 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -19,7 +21,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -202,5 +206,22 @@ public class FileUtilities {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @SneakyThrows
+    public static List<Resource> listFilesV2(String path) {
+        var resolver = new PathMatchingResourcePatternResolver();
+        Resource[] resources = resolver.getResources(path);
+        return Arrays.stream(resources)
+                .filter(Resource::isReadable)
+                .filter(
+                        resource -> {
+                            try {
+                                return resource.contentLength() > 0;
+                            } catch (IOException e) {
+                                return false;
+                            }
+                        })
+                .toList();
     }
 }

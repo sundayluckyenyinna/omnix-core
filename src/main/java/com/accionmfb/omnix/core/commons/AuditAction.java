@@ -14,6 +14,7 @@ public enum AuditAction {
 
     // User Management
     PLATFORM_USER_LOGIN("User login to platform"),
+    PLATFORM_USER_LOGIN_FAILED("Failed login attempt for admin user"),
     PLATFORM_USER_LOGOUT("Platform user logout"),
     CREATE_PLATFORM_USER("Create new platform user"),
     CREATE_PLATFORM_ROLE("Create new platform role"),

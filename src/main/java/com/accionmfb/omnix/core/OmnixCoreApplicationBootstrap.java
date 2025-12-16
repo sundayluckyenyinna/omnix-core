@@ -10,6 +10,7 @@ import com.accionmfb.omnix.core.jwt.JwtModule;
 import com.accionmfb.omnix.core.localsource.LocalSourceModule;
 import com.accionmfb.omnix.core.logger.LoggerModule;
 import com.accionmfb.omnix.core.service.ServiceModule;
+import com.accionmfb.omnix.core.util.FileResourceCacheConfig;
 import com.accionmfb.omnix.core.util.UtilModule;
 import com.accionmfb.omnix.core.validation.ValidationModule;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +29,8 @@ import org.springframework.context.annotation.Import;
         LoggerModule.class,
         ServiceModule.class,
         UtilModule.class,
-        ValidationModule.class
+        ValidationModule.class,
+        FileResourceCacheConfig.class
 })
 public class OmnixCoreApplicationBootstrap {
 }
